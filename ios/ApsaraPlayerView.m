@@ -8,6 +8,8 @@
 {
   NSDictionary *_src;
   BOOL _paused;
+  BOOL _muted;
+  BOOL _repeat;
   BOOL _prepared;
   AliMediaDownloader *_downloader;
   RCTPromiseResolveBlock _downloaderResolver;
@@ -84,6 +86,12 @@
   if (!_paused) {
     _player.autoPlay = YES;
   }
+  if (_muted) {
+    _player.muted = _muted;
+  }
+  if (_repeat) {
+    _player.loop = _repeat;
+  }
 }
 
 - (void)setPaused:(BOOL)paused {
@@ -102,6 +110,7 @@
 
 - (void)setMuted: (bool)muted {
   _player.muted = muted;
+  _muted = muted
 }
 
 - (void)setVolume: (float)volume {
@@ -110,6 +119,7 @@
 
 - (void)setRepeat: (bool)repeat {
   _player.loop = repeat;
+  _repeat = repeat
 }
 
 - (dispatch_queue_t)methodQueue {

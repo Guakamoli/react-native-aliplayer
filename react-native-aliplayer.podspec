@@ -3,7 +3,7 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 Pod::Spec.new do |s|
-  s.name         = "react-native-apsara-player"
+  s.name         = "react-native-aliplayer"
   s.version      = package["version"]
   s.summary      = package["description"]
   s.description  = <<-DESC
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency "AliPlayerSDK_iOS"
+  s.dependency "AliPlayerPartSDK_iOS"
 
   # s.dependency "..."
 end
