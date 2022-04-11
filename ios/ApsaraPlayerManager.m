@@ -21,10 +21,20 @@ RCT_EXPORT_VIEW_PROPERTY(paused, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(muted, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(volume, float)
 RCT_EXPORT_VIEW_PROPERTY(seek, float)
+RCT_EXPORT_VIEW_PROPERTY(positionTimerIntervalMs, int)
+RCT_EXPORT_VIEW_PROPERTY(cacheEnable, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
+// RCT_EXPORT_VIEW_PROPERTY(cacheMaxSizeMB, int)
+// RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
+// RCT_EXPORT_VIEW_PROPERTY(highBufferDuration, int)
+// RCT_EXPORT_VIEW_PROPERTY(maxBufferDuration, int)
+
 RCT_EXPORT_VIEW_PROPERTY(source, NSDictionary)
 
 RCT_EXPORT_VIEW_PROPERTY(onVideoLoad, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onVideoSeek, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onVideoFirstRenderedStart, RCTDirectEventBlock)
+
 RCT_EXPORT_VIEW_PROPERTY(onVideoEnd, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onVideoError, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onVideoProgress, RCTDirectEventBlock)

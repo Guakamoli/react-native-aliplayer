@@ -15,16 +15,68 @@ export default class ApsaraPlayer extends React.Component {
       ? NativeModules.ApsaraPlayerManager
       : NativeModules.ApsaraPlayerModule;
   }
+  constructor (props){
+    super(props)
+    this.state= {
+      source: props.source,
+      paused: props.paused,
+      muted: props.muted,
+      positionMillis: props.positionMillis
+    }
+  }
 
   componentWillUnmount() {
-    this._module.destroy(findNodeHandle(this._player));
+    try {
+      if (findNodeHandle(this._player)) {
+        this._module?.destroy?.(findNodeHandle(this._player));
+  
+      }
+    } catch (e) {
+      
+    }
+
   }
 
   setNativeProps(nativeProps) {
     this._player.setNativeProps(nativeProps);
   }
+  loadAsync =(source, options)=> {
+    console.info('加载', source)
 
-  seek = time => {
+    this.setState({
+      source,
+      paused: !options.shouldPlay,
+      muted: options.muted
+    })
+  }
+  playAsync =()=> {
+    console.info('播放了', this.state.source)
+    this.setState({
+      paused: false
+    })
+  }
+  setIsMutedAsync =(muted) =>{
+    this.setState({
+      muted: muted
+    })
+  } 
+  pauseAsync =()=>{
+    console.info('停止了', this.state.source)
+    this.setState({
+      paused: true
+    })
+  }
+  unloadAsync =()=>{
+    console.info('卸载掉', this.state.source)
+
+    this.setState({
+      paused: false,
+      source: null
+    })
+
+  }
+
+  playFromPositionAsync = time => {
     if (isNaN(time)) throw new Error('Specified time is not a number');
     this.setNativeProps({seek: time});
   };
@@ -46,7 +98,12 @@ export default class ApsaraPlayer extends React.Component {
       this.props.onProgress(event.nativeEvent);
     }
   };
-
+  _onVideoFirstRenderedStart = event => {
+    console.info('传递来')
+    if (this.props.onVideoFirstRenderedStart) {
+      this.props.onVideoFirstRenderedStart(event.nativeEvent);
+    }
+  };
   _onSeek = event => {
     if (this.props.onSeek) {
       this.props.onSeek(event.nativeEvent);
@@ -59,25 +116,37 @@ export default class ApsaraPlayer extends React.Component {
 
   render() {
     const style = [styles.base, this.props.style];
-
     return (
       <View style={style}>
-        <RNApsaraPlayer
-          ref={r => {
-            this._player = r;
-          }}
-          style={StyleSheet.absoluteFill}
-          source={this.props.source}
-          paused={this.props.paused}
-          repeat={this.props.repeat}
-          volume={this.props.volume}
-          muted={this.props.muted}
-          onVideoEnd={this.props.onEnd}
-          onVideoLoad={this._onLoad}
-          onVideoSeek={this._onSeek}
-          onVideoError={this._onError}
-          onVideoProgress={this._onProgress}
-        />
+        {this.state.source ? (
+          <RNApsaraPlayer
+            ref={r => {
+              this._player = r;
+            }}
+            style={StyleSheet.absoluteFill}
+            source={this.state.source}
+            paused={this.state.paused}
+            repeat={this.props.repeat}
+            volume={this.props.volume}
+            positionTimerIntervalMs={this.props.positionTimerIntervalMs}
+            muted={this.state.muted}
+            seek={this.props.positionMillis}
+            onVideoEnd={this.props.onEnd}
+            resizeMode={this.props.resizeMode}
+            onVideoLoad={this._onLoad}
+            onVideoSeek={this._onSeek}
+            onVideoError={this._onError}
+            onVideoProgress={this._onProgress}
+            onVideoFirstRenderedStart={this._onVideoFirstRenderedStart}
+            cacheEnable={this.props.cacheEnable}
+            cacheMaxDuration={this.props.cacheMaxDuration}
+            cacheMaxSizeMB={this.props.cacheMaxSizeMB}
+            startBufferDuration={this.props.startBufferDuration}
+            highBufferDuration={this.props.highBufferDuration}
+            maxBufferDuration={this.props.maxBufferDuration}
+            />
+        ): null}
+       
       </View>
     );
   }
@@ -88,6 +157,14 @@ ApsaraPlayer.defaultProps = {
   muted: false,
   paused: false,
   repeat: false,
+  cacheEnable: false,
+  cacheMaxDuration: 100,
+  cacheMaxSizeMB: 200,
+  startBufferDuration: 500,
+  highBufferDuration: 3000,
+  maxBufferDuration: 50000,
+  positionTimerIntervalMs: 30,
+  resizeMode: 'contain'
 }
 
 ApsaraPlayer.propTypes = {
@@ -115,11 +192,21 @@ ApsaraPlayer.propTypes = {
   onSeek: PropTypes.func,
   onError: PropTypes.func,
   onProgress: PropTypes.func,
+  onVideoFirstRenderedStart: PropTypes.func,
+  cacheEnable: PropTypes.bool,
+  cacheMaxDuration: PropTypes.number,
+  cacheMaxSizeMB: PropTypes.number,
+  startBufferDuration: PropTypes.number,
+  highBufferDuration: PropTypes.number,
+  maxBufferDuration: PropTypes.number,
+  positionTimerIntervalMs: PropTypes.number,
+  resizeMode: PropTypes.string,
 };
 
 const styles = StyleSheet.create({
   base: {
     overflow: 'hidden',
+    backgroundColor: 'transparent'
   },
 });
 

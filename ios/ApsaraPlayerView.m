@@ -4,6 +4,7 @@
 @property (nonatomic, strong) UIView *playerView;
 @end
 
+
 @implementation ApsaraPlayerView
 {
   NSDictionary *_src;
@@ -11,6 +12,11 @@
   BOOL _muted;
   BOOL _repeat;
   BOOL _prepared;
+  BOOL _cacheEnable;
+  float _seek;
+  AVPScalingMode _resizeMode;
+  int _positionTimerIntervalMs;
+  
   AliMediaDownloader *_downloader;
   RCTPromiseResolveBlock _downloaderResolver;
   RCTPromiseRejectBlock _downloaderRejector;
@@ -31,10 +37,14 @@
 }
 
 - (AliPlayer *)player {
+    [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB:1024 * 10 localCacheDir:@""];
+    [AliPlayerGlobalSettings setCacheFileClearConfig:3 maxCapacityMB: 20 * 1024 freeStorageMB:0];
+    [AliPlayerGlobalSettings setUseHttp2:true];
+
   if (!_player) {
     _player = [[AliPlayer alloc] init];
     _player.autoPlay = NO;
-    _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
+    _player.scalingMode = _resizeMode;
     _player.rate = 1;
     _player.delegate = self;
     _player.playerView = self.playerView;
@@ -80,9 +90,32 @@
   } else if (_src[@"auth"] && _src[@"auth"][@"vid"]) {
     [_player setAuthSource: [self authSource:_src[@"auth"]]];
   }
+    //先获取配置
+    AVPConfig *config = [_player getConfig];
+
+    // // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
+    config.maxBufferDuration = 50000;
+    // //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
+    config.highBufferDuration = 3000;
+    // // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
+    config.startBufferDuration = 500;
+    config.positionTimerIntervalMs = _positionTimerIntervalMs;
+    //其他设置
+    //设置配置给播放器
+    [_player setConfig:config];
+     AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
+     //开启缓存功能
+     cacheConfig.enable = _cacheEnable;
+     //能够缓存的单个文件最大时长。超过此长度则不缓存
+     cacheConfig.maxDuration = 100;
+     //缓存目录的位置，需替换成app期望的路径
+     cacheConfig.path = @"paiya-aliplayer";
+     //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
+     cacheConfig.maxSizeMB = 20 * 1024;
+     //设置缓存配置给到播放器
+     [_player setCacheConfig:cacheConfig];
   [_player prepare];
   _prepared = YES;
-
   if (!_paused) {
     _player.autoPlay = YES;
   }
@@ -96,30 +129,52 @@
 
 - (void)setPaused:(BOOL)paused {
   if (paused) {
+      _player.autoPlay = NO;
     [_player pause];
   } else {
+    _player.autoPlay = YES;
     [_player start];
   }
 
   _paused = paused;
 }
 
+- (void)setResizeMode:(NSString*)mode
+{
+    if ([mode isEqual: @"contain"]) {
+        _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
+        _resizeMode = AVP_SCALINGMODE_SCALEASPECTFIT;
+
+    } else if ([mode isEqual: @"cover"]) {
+        _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFILL;
+        _resizeMode = AVP_SCALINGMODE_SCALEASPECTFILL;
+
+    }
+}
+
 - (void)setSeek: (float)seek {
-  [_player seekToTime:seek seekMode:AVP_SEEKMODE_INACCURATE];
+  [_player seekToTime:seek seekMode:AVP_SEEKMODE_ACCURATE];
+  _seek = seek;
+}
+
+- (void)setPositionTimerIntervalMs: (float)positionTimerIntervalMs {
+    _positionTimerIntervalMs = positionTimerIntervalMs;
 }
 
 - (void)setMuted: (bool)muted {
   _player.muted = muted;
-  _muted = muted
+    _muted = muted;
 }
 
 - (void)setVolume: (float)volume {
   _player.volume = volume;
 }
-
+- (void)setCacheEnable: (bool)cacheEnable {
+  _cacheEnable = cacheEnable;
+}
 - (void)setRepeat: (bool)repeat {
   _player.loop = repeat;
-  _repeat = repeat
+    _repeat = repeat;
 }
 
 - (dispatch_queue_t)methodQueue {
@@ -133,6 +188,16 @@
         self.onVideoLoad(@{
           @"duration": [NSNumber numberWithFloat:_player.duration],
           @"currentPosition": [NSNumber numberWithFloat:_player.currentPosition]});
+      }
+      if (_seek) {
+        [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+      }
+
+      break;
+    case AVPEventFirstRenderedStart:
+      if (self.onVideoFirstRenderedStart) {
+        self.onVideoFirstRenderedStart(@{
+          @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
       }
       break;
     case AVPEventSeekEnd:
