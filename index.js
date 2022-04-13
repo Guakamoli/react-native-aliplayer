@@ -29,14 +29,26 @@ export default class ApsaraPlayer extends React.Component {
     try {
       if (findNodeHandle(this._player)) {
         this._module?.destroy?.(findNodeHandle(this._player));
-  
       }
     } catch (e) {
       
     }
 
   }
-
+  setGlobalSettings (){
+    try {
+        this._module?.setGlobalSettings();
+    } catch (e) {
+      
+    }
+  }
+  preLoadUrl (url){
+    try {
+        this._module?.preLoadUrl(url);
+    } catch (e) {
+      
+    }
+  }
   setNativeProps(nativeProps) {
     this._player.setNativeProps(nativeProps);
   }
@@ -99,7 +111,6 @@ export default class ApsaraPlayer extends React.Component {
     }
   };
   _onVideoFirstRenderedStart = event => {
-    console.info('传递来')
     if (this.props.onVideoFirstRenderedStart) {
       this.props.onVideoFirstRenderedStart(event.nativeEvent);
     }

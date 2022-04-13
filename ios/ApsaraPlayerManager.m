@@ -54,6 +54,17 @@ RCT_REMAP_METHOD(save,
   }];
 }
 
+RCT_REMAP_METHOD(setGlobalSettings, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB:1024 * 10 localCacheDir:@""];
+    [AliPlayerGlobalSettings setCacheFileClearConfig: 24 * 60 * 3 maxCapacityMB: 20 * 1024 freeStorageMB:0];
+    [AliPlayerGlobalSettings setUseHttp2:true];
+}
+
+RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[AliMediaLoader shareInstance] load: url duration:1000];
+
+}
+
 RCT_REMAP_METHOD(destroy, reactTag:(nonnull NSNumber *)reactTag) {
   [self.bridge.uiManager prependUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, ApsaraPlayerView *> *viewRegistry) {
     ApsaraPlayerView *view = viewRegistry[reactTag];

@@ -107,7 +107,7 @@
      //开启缓存功能
      cacheConfig.enable = _cacheEnable;
      //能够缓存的单个文件最大时长。超过此长度则不缓存
-     cacheConfig.maxDuration = 100;
+     cacheConfig.maxDuration = 300;
      //缓存目录的位置，需替换成app期望的路径
      cacheConfig.path = @"paiya-aliplayer";
      //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
