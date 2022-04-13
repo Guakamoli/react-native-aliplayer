@@ -79,7 +79,9 @@
 
 - (void)setSource: (NSDictionary *)source {
   _src = source;
-
+  if (!_src[@"uri"]) {
+    return;
+  }
   [self addSubview: self.player.playerView];
 
   if (_src[@"uri"] && ![(NSString *)_src[@"uri"] isEqualToString:@""]) {
@@ -152,8 +154,11 @@
 }
 
 - (void)setSeek: (float)seek {
-  [_player seekToTime:seek seekMode:AVP_SEEKMODE_ACCURATE];
   _seek = seek;
+  if (_player) {
+  [_player seekToTime:seek seekMode:AVP_SEEKMODE_ACCURATE];
+  }
+
 }
 
 - (void)setMaxBufferDuration: (int)maxBufferDuration {
@@ -205,14 +210,27 @@
   _cacheEnable = cacheEnable;
 }
 - (void)setRepeat: (bool)repeat {
-  _player.loop = repeat;
-    _repeat = repeat;
+  _repeat = repeat;
+    if (_player) {
+        _player.loop = repeat;
+    }
+   
 }
 
 - (dispatch_queue_t)methodQueue {
   return dispatch_get_main_queue();
 }
+-(void)onPlayerEvent:(AliPlayer*)player eventWithString:(AVPEventWithString)eventWithString description:(NSString *)description {
+    if (eventWithString == EVENT_PLAYER_CACHE_SUCCESS) {
+        //缓存成功事件。
+        NSLog(@"%@", description);
+        
+    }else if (eventWithString == EVENT_PLAYER_CACHE_ERROR) {
+        //缓存失败事件。
+        NSLog(@"%@", description);
 
+    }
+}
 -(void)onPlayerEvent:(AliPlayer*)player eventType:(AVPEventType)eventType {
   switch (eventType) {
     case AVPEventPrepareDone:

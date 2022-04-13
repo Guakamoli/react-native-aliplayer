@@ -40,7 +40,6 @@ export default class ApsaraPlayer extends React.Component {
     this._player.setNativeProps(nativeProps);
   }
   loadAsync =(source, options)=> {
-
     this.setState({
       source,
       paused: !options.shouldPlay,
@@ -110,8 +109,7 @@ export default class ApsaraPlayer extends React.Component {
   render() {
     const style = [styles.base, this.props.style];
     return (
-      <View style={style}>
-        {this.state.source ? (
+      <View style={[style, {display: this.state.source ? "flex": "none"}]}>
           <RNApsaraPlayer
             ref={r => {
               this._player = r;
@@ -137,9 +135,7 @@ export default class ApsaraPlayer extends React.Component {
             startBufferDuration={this.props.startBufferDuration}
             highBufferDuration={this.props.highBufferDuration}
             maxBufferDuration={this.props.maxBufferDuration}
-            />
-        ): null}
-       
+            />       
       </View>
     );
   }
@@ -149,7 +145,7 @@ ApsaraPlayer.defaultProps = {
   volume: 1,
   muted: false,
   paused: false,
-  repeat: false,
+  repeat: true,
   cacheEnable: false,
   cacheMaxDuration: 100,
   cacheMaxSizeMB: 200,
