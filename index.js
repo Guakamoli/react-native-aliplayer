@@ -40,7 +40,6 @@ export default class ApsaraPlayer extends React.Component {
     this._player.setNativeProps(nativeProps);
   }
   loadAsync =(source, options)=> {
-    console.info('加载', source)
 
     this.setState({
       source,
@@ -49,7 +48,6 @@ export default class ApsaraPlayer extends React.Component {
     })
   }
   playAsync =()=> {
-    console.info('播放了', this.state.source)
     this.setState({
       paused: false
     })
@@ -60,14 +58,11 @@ export default class ApsaraPlayer extends React.Component {
     })
   } 
   pauseAsync =()=>{
-    console.info('停止了', this.state.source)
     this.setState({
       paused: true
     })
   }
   unloadAsync =()=>{
-    console.info('卸载掉', this.state.source)
-
     this.setState({
       paused: false,
       source: null
