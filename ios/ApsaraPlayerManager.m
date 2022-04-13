@@ -22,12 +22,15 @@ RCT_EXPORT_VIEW_PROPERTY(muted, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(volume, float)
 RCT_EXPORT_VIEW_PROPERTY(seek, float)
 RCT_EXPORT_VIEW_PROPERTY(positionTimerIntervalMs, int)
+
+RCT_EXPORT_VIEW_PROPERTY(maxBufferDuration, int)
+RCT_EXPORT_VIEW_PROPERTY(highBufferDuration, int)
+RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
+
 RCT_EXPORT_VIEW_PROPERTY(cacheEnable, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
 // RCT_EXPORT_VIEW_PROPERTY(cacheMaxSizeMB, int)
-// RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
-// RCT_EXPORT_VIEW_PROPERTY(highBufferDuration, int)
-// RCT_EXPORT_VIEW_PROPERTY(maxBufferDuration, int)
+
 
 RCT_EXPORT_VIEW_PROPERTY(source, NSDictionary)
 
@@ -52,6 +55,10 @@ RCT_REMAP_METHOD(save,
       [view save:options resolve:resolve reject:reject];
     }
   }];
+}
+
+static NSString *CaheUrlHashHandle(NSString *url) {
+    return @"xxx";
 }
 
 RCT_REMAP_METHOD(setGlobalSettings, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {

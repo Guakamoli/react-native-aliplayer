@@ -16,7 +16,9 @@
   float _seek;
   AVPScalingMode _resizeMode;
   int _positionTimerIntervalMs;
-  
+  int _maxBufferDuration;
+  int _highBufferDuration;
+  int _startBufferDuration;
   AliMediaDownloader *_downloader;
   RCTPromiseResolveBlock _downloaderResolver;
   RCTPromiseRejectBlock _downloaderRejector;
@@ -91,11 +93,11 @@
     AVPConfig *config = [_player getConfig];
 
     // // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
-    config.maxBufferDuration = 50000;
+    config.maxBufferDuration = _maxBufferDuration;
     // //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
-    config.highBufferDuration = 3000;
+    config.highBufferDuration = _highBufferDuration;
     // // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
-    config.startBufferDuration = 500;
+    config.startBufferDuration = _startBufferDuration;
     config.positionTimerIntervalMs = _positionTimerIntervalMs;
     //其他设置
     //设置配置给播放器
@@ -154,6 +156,33 @@
   _seek = seek;
 }
 
+- (void)setMaxBufferDuration: (int)maxBufferDuration {
+    _maxBufferDuration = maxBufferDuration;
+    if (_player) {
+      AVPConfig *config = [_player getConfig];
+      config.maxBufferDuration = _maxBufferDuration;
+      [_player setConfig:config];
+    }
+
+}
+- (void)setHighBufferDuration: (int)highBufferDuration {
+    _highBufferDuration = highBufferDuration;
+    if (_player) {
+      AVPConfig *config = [_player getConfig];
+      config.highBufferDuration = _highBufferDuration;
+      [_player setConfig:config];
+    }
+
+}
+- (void)setStartBufferDuration: (int)startBufferDuration {
+    _startBufferDuration = startBufferDuration;
+    if (_player) {
+      AVPConfig *config = [_player getConfig];
+      config.startBufferDuration = _startBufferDuration;
+      [_player setConfig:config];
+    }
+
+}
 - (void)setPositionTimerIntervalMs: (int)positionTimerIntervalMs {
     _positionTimerIntervalMs = positionTimerIntervalMs;
     if (_player) {
@@ -190,7 +219,18 @@
       if (self.onVideoLoad) {
         self.onVideoLoad(@{
           @"duration": [NSNumber numberWithFloat:_player.duration],
-          @"currentPosition": [NSNumber numberWithFloat:_player.currentPosition]});
+          @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
+      }
+      if (_seek) {
+        [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+      }
+
+      break;
+    case AVPEventAutoPlayStart:
+      if (self.onVideoLoad) {
+        self.onVideoLoad(@{
+          @"duration": [NSNumber numberWithFloat:_player.duration],
+          @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
       }
       if (_seek) {
         [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
@@ -200,6 +240,7 @@
     case AVPEventFirstRenderedStart:
       if (self.onVideoFirstRenderedStart) {
         self.onVideoFirstRenderedStart(@{
+          @"duration": [NSNumber numberWithFloat:_player.duration],
           @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
       }
       break;

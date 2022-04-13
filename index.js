@@ -82,7 +82,7 @@ export default class ApsaraPlayer extends React.Component {
 
   _onLoad = event => {
     if (this.props.onLoad) {
-      this.props.onLoad(event.nativeEvent);
+      this.props.onLoad({durationMillis: event.nativeEvent?.duration});
     }
   };
 
@@ -93,8 +93,8 @@ export default class ApsaraPlayer extends React.Component {
   };
 
   _onProgress = event => {
-    if (this.props.onProgress) {
-      this.props.onProgress(event.nativeEvent);
+    if (this.props.onPlaybackStatusUpdate) {
+      this.props.onPlaybackStatusUpdate({positionMillis: event.nativeEvent?.currentTime});
     }
   };
   _onVideoFirstRenderedStart = event => {
@@ -126,7 +126,7 @@ export default class ApsaraPlayer extends React.Component {
             paused={this.state.paused}
             repeat={this.props.repeat}
             volume={this.props.volume}
-            positionTimerIntervalMs={this.props.positionTimerIntervalMs}
+            positionTimerIntervalMs={this.props.progressUpdateIntervalMillis}
             muted={this.state.muted}
             seek={this.props.positionMillis}
             onVideoEnd={this.props.onEnd}
@@ -161,7 +161,7 @@ ApsaraPlayer.defaultProps = {
   startBufferDuration: 500,
   highBufferDuration: 3000,
   maxBufferDuration: 50000,
-  positionTimerIntervalMs: 30,
+  progressUpdateIntervalMillis: 30,
   resizeMode: 'contain'
 }
 
@@ -189,7 +189,7 @@ ApsaraPlayer.propTypes = {
   onLoad: PropTypes.func,
   onSeek: PropTypes.func,
   onError: PropTypes.func,
-  onProgress: PropTypes.func,
+  onPlaybackStatusUpdate: PropTypes.func,
   onVideoFirstRenderedStart: PropTypes.func,
   cacheEnable: PropTypes.bool,
   cacheMaxDuration: PropTypes.number,
@@ -197,7 +197,7 @@ ApsaraPlayer.propTypes = {
   startBufferDuration: PropTypes.number,
   highBufferDuration: PropTypes.number,
   maxBufferDuration: PropTypes.number,
-  positionTimerIntervalMs: PropTypes.number,
+  progressUpdateIntervalMillis: PropTypes.number,
   resizeMode: PropTypes.string,
 };
 
