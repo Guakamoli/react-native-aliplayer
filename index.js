@@ -35,20 +35,7 @@ export default class ApsaraPlayer extends React.Component {
     }
 
   }
-  setGlobalSettings (){
-    try {
-        this._module?.setGlobalSettings();
-    } catch (e) {
-      
-    }
-  }
-  preLoadUrl (url){
-    try {
-        this._module?.preLoadUrl(url);
-    } catch (e) {
-      
-    }
-  }
+
   setNativeProps(nativeProps) {
     this._player.setNativeProps(nativeProps);
   }
@@ -226,3 +213,29 @@ const RNApsaraPlayer = requireNativeComponent('ApsaraPlayer', ApsaraPlayer, {
     seek: true,
   },
 });
+
+const getModule = () => {
+ return Platform.OS === 'ios'
+ ? NativeModules.ApsaraPlayerManager
+ : NativeModules.ApsaraPlayerModule;
+}
+const setGlobalSettings =()=> {
+  const _module = getModule()
+  try {
+      _module?.setGlobalSettings();
+  } catch (e) {
+    
+  }
+}
+const preLoadUrl = (url) =>{
+  const _module = getModule()
+  try {
+      _module?.preLoadUrl(url);
+  } catch (e) {
+    
+  }
+}
+export {
+  setGlobalSettings,
+  preLoadUrl
+}

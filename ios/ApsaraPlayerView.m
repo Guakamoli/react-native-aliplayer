@@ -37,9 +37,6 @@
 }
 
 - (AliPlayer *)player {
-    [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB:1024 * 10 localCacheDir:@""];
-    [AliPlayerGlobalSettings setCacheFileClearConfig:3 maxCapacityMB: 20 * 1024 freeStorageMB:0];
-    [AliPlayerGlobalSettings setUseHttp2:true];
 
   if (!_player) {
     _player = [[AliPlayer alloc] init];
@@ -109,7 +106,7 @@
      //能够缓存的单个文件最大时长。超过此长度则不缓存
      cacheConfig.maxDuration = 300;
      //缓存目录的位置，需替换成app期望的路径
-     cacheConfig.path = @"paiya-aliplayer";
+    //  cacheConfig.path = @"aliyun";
      //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
      cacheConfig.maxSizeMB = 20 * 1024;
      //设置缓存配置给到播放器
@@ -157,8 +154,14 @@
   _seek = seek;
 }
 
-- (void)setPositionTimerIntervalMs: (float)positionTimerIntervalMs {
+- (void)setPositionTimerIntervalMs: (int)positionTimerIntervalMs {
     _positionTimerIntervalMs = positionTimerIntervalMs;
+    if (_player) {
+      AVPConfig *config = [_player getConfig];
+      config.positionTimerIntervalMs = _positionTimerIntervalMs;
+      [_player setConfig:config];
+    }
+
 }
 
 - (void)setMuted: (bool)muted {
