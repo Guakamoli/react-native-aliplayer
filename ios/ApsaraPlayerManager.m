@@ -61,7 +61,7 @@ RCT_REMAP_METHOD(setGlobalSettings, resolver:(RCTPromiseResolveBlock)resolve rej
 }
 
 RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [[AliMediaLoader shareInstance] load: url duration:1000];
+    [[AliMediaLoader shareInstance] load: url duration:10000];
 
 }
 
