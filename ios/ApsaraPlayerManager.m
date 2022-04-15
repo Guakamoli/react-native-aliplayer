@@ -2,6 +2,49 @@
 #import <React/RCTBridge.h>
 #import "ApsaraPlayerManager.h"
 
+@implementation ApsaraMediaManager
+RCT_EXPORT_MODULE()
+- (NSArray<NSString *> *)supportedEvents {
+    return @[@"onError", @"onCompleted", @"onCanceled"];
+}
+RCT_REMAP_METHOD(setGlobalSettings, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB:1024 * 10 localCacheDir:@""];
+    [AliPlayerGlobalSettings setCacheFileClearConfig: 24 * 60 * 3 maxCapacityMB: 20 * 1024 freeStorageMB:0];
+    [[AliMediaLoader shareInstance] setAliMediaLoaderStatusDelegate:self];
+}
+
+RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    [[AliMediaLoader shareInstance] load: url duration:10000];
+}
+/**
+ @brief 错误回调
+ @param url 加载url
+ @param code 错误码
+ @param msg 错误描述
+ */
+- (void)onError:(NSString *)url code:(int64_t)code msg:(NSString *)msg {
+    [self sendEventWithName:@"onError" body:@{@"url":url, @"msg": msg}];
+};
+
+/**
+ @brief 完成回调
+ @param url 加载url
+ */
+- (void)onCompleted:(NSString *)url {
+    [self sendEventWithName:@"onCompleted" body:@{@"url":url}];
+};
+
+/**
+ @brief 取消回调
+ @param url 加载url
+ */
+- (void)onCanceled:(NSString *)url {
+    [self sendEventWithName:@"onCanceled" body:@{@"url":url}];
+};
+
+
+@end
+
 @implementation ApsaraPlayerManager
 
 RCT_EXPORT_MODULE()
@@ -61,16 +104,6 @@ static NSString *CaheUrlHashHandle(NSString *url) {
     return @"xxx";
 }
 
-RCT_REMAP_METHOD(setGlobalSettings, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB:1024 * 10 localCacheDir:@""];
-    [AliPlayerGlobalSettings setCacheFileClearConfig: 24 * 60 * 3 maxCapacityMB: 20 * 1024 freeStorageMB:0];
-    [AliPlayerGlobalSettings setUseHttp2:true];
-}
-
-RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    [[AliMediaLoader shareInstance] load: url duration:10000];
-
-}
 
 RCT_REMAP_METHOD(destroy, reactTag:(nonnull NSNumber *)reactTag) {
   [self.bridge.uiManager prependUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, ApsaraPlayerView *> *viewRegistry) {

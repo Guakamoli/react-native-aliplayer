@@ -4,6 +4,7 @@ import {
   Platform,
   StyleSheet,
   NativeModules,
+  NativeEventEmitter,
   findNodeHandle,
   requireNativeComponent,
 } from 'react-native';
@@ -207,12 +208,13 @@ const RNApsaraPlayer = requireNativeComponent('ApsaraPlayer', ApsaraPlayer, {
 
 const getModule = () => {
  return Platform.OS === 'ios'
- ? NativeModules.ApsaraPlayerManager
+ ? NativeModules.ApsaraMediaManager
  : NativeModules.ApsaraPlayerModule;
 }
 const setGlobalSettings =()=> {
   const _module = getModule()
   try {
+    console.info(_module?.setGlobalSettings, '_module?.preLoadUrl')
       _module?.setGlobalSettings();
   } catch (e) {
     
@@ -221,12 +223,16 @@ const setGlobalSettings =()=> {
 const preLoadUrl = (url) =>{
   const _module = getModule()
   try {
+    console.info(_module?.preLoadUrl, '_module?.preLoadUrl')
       _module?.preLoadUrl(url);
   } catch (e) {
     
   }
 }
+const ApsaraMediaManagerEmitter = new NativeEventEmitter(NativeModules.ApsaraMediaManager);
+
 export {
+  ApsaraMediaManagerEmitter,
   setGlobalSettings,
   preLoadUrl
 }
