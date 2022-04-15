@@ -343,6 +343,11 @@
   [self destroyDownloader];
 }
 
+-(void)onCompletion:(AliMediaDownloader *)downloader {
+  _downloaderResolver(@{@"uri": downloader.downloadedFilePath});
+  [self destroyDownloader];
+}
+
 # pragma destroy
 - (void)destroy {
   if (_player) {
