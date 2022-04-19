@@ -9,7 +9,7 @@
 
 @end
 
-@interface ApsaraMediaManager : RCTEventEmitter  <RCTBridgeModule>
+@interface ApsaraMediaManager : RCTEventEmitter  <AliVodMediaLoaderStatusDelegate, RCTBridgeModule>
 
 
 @end

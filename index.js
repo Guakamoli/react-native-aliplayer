@@ -19,6 +19,7 @@ export default class ApsaraPlayer extends React.Component {
   constructor (props){
     super(props)
     this.state= {
+      show: !!props.source,
       source: props.source,
       paused: props.paused,
       muted: props.muted,
@@ -46,14 +47,13 @@ export default class ApsaraPlayer extends React.Component {
   loadAsync =(source, options)=> {
     this.setState({
       paused: !options.shouldPlay,
-      muted: options.muted
+      muted: options.muted,
+      show: true
     },()=>{
-      this.t = setTimeout(() => {
-        this.setState({
-          source,
-    
-        })
-      }, 0);
+      this.setState({
+        source,
+  
+      })
     })
 
   }
@@ -76,9 +76,20 @@ export default class ApsaraPlayer extends React.Component {
     if (this.t) {
       clearTimeout(this.t)
     }
+    try {
+      if (this.t) {
+        clearTimeout(this.t)
+      }
+      if (findNodeHandle(this._player)) {
+        this._module?.destroy?.(findNodeHandle(this._player));
+      }
+    } catch (e) {
+      
+    }
     this.setState({
       paused: false,
-      source: null
+      // source: null,
+      show: false
     })
 
   }
@@ -122,10 +133,10 @@ export default class ApsaraPlayer extends React.Component {
 
   render() {
     const style = [styles.base, this.props.style];
-    const {source} =this.state
+    const {show} =this.state
     return (
       <View style={[style, {display: this.state.source ? "flex": "none"}]}>
-        {source? (
+        {show? (
           <RNApsaraPlayer
           ref={r => {
             this._player = r;
