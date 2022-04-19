@@ -33,6 +33,7 @@
 
 - (void) dealloc {
   if (_player) {
+    [_player stop];
     [_player destroy];
     _player = nil;
   }
@@ -346,7 +347,9 @@
 # pragma destroy
 - (void)destroy {
   if (_player) {
+    [_player stop];
     [_player destroy];
+     _player = nil;
   }
 
   if (_downloader) {

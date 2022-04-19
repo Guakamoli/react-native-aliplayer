@@ -28,6 +28,9 @@ export default class ApsaraPlayer extends React.Component {
 
   componentWillUnmount() {
     try {
+      if (this.t) {
+        clearTimeout(this.t)
+      }
       if (findNodeHandle(this._player)) {
         this._module?.destroy?.(findNodeHandle(this._player));
       }
@@ -42,10 +45,17 @@ export default class ApsaraPlayer extends React.Component {
   }
   loadAsync =(source, options)=> {
     this.setState({
-      source,
       paused: !options.shouldPlay,
       muted: options.muted
+    },()=>{
+      this.t = setTimeout(() => {
+        this.setState({
+          source,
+    
+        })
+      }, 0);
     })
+
   }
   playAsync =()=> {
     this.setState({
@@ -63,6 +73,9 @@ export default class ApsaraPlayer extends React.Component {
     })
   }
   unloadAsync =()=>{
+    if (this.t) {
+      clearTimeout(this.t)
+    }
     this.setState({
       paused: false,
       source: null
@@ -109,34 +122,38 @@ export default class ApsaraPlayer extends React.Component {
 
   render() {
     const style = [styles.base, this.props.style];
+    const {source} =this.state
     return (
       <View style={[style, {display: this.state.source ? "flex": "none"}]}>
+        {source? (
           <RNApsaraPlayer
-            ref={r => {
-              this._player = r;
-            }}
-            style={StyleSheet.absoluteFill}
-            source={this.state.source}
-            paused={this.state.paused}
-            repeat={this.props.repeat}
-            volume={this.props.volume}
-            positionTimerIntervalMs={this.props.progressUpdateIntervalMillis}
-            muted={this.state.muted}
-            seek={this.props.positionMillis}
-            onVideoEnd={this.props.onEnd}
-            resizeMode={this.props.resizeMode}
-            onVideoLoad={this._onLoad}
-            onVideoSeek={this._onSeek}
-            onVideoError={this._onError}
-            onVideoProgress={this._onProgress}
-            onVideoFirstRenderedStart={this._onVideoFirstRenderedStart}
-            cacheEnable={this.props.cacheEnable}
-            cacheMaxDuration={this.props.cacheMaxDuration}
-            cacheMaxSizeMB={this.props.cacheMaxSizeMB}
-            startBufferDuration={this.props.startBufferDuration}
-            highBufferDuration={this.props.highBufferDuration}
-            maxBufferDuration={this.props.maxBufferDuration}
-            />       
+          ref={r => {
+            this._player = r;
+          }}
+          style={StyleSheet.absoluteFill}
+          source={this.state.source}
+          paused={this.state.paused}
+          repeat={this.props.repeat}
+          volume={this.props.volume}
+          positionTimerIntervalMs={this.props.progressUpdateIntervalMillis}
+          muted={this.state.muted}
+          seek={this.props.positionMillis}
+          onVideoEnd={this.props.onEnd}
+          resizeMode={this.props.resizeMode}
+          onVideoLoad={this._onLoad}
+          onVideoSeek={this._onSeek}
+          onVideoError={this._onError}
+          onVideoProgress={this._onProgress}
+          onVideoFirstRenderedStart={this._onVideoFirstRenderedStart}
+          cacheEnable={this.props.cacheEnable}
+          cacheMaxDuration={this.props.cacheMaxDuration}
+          cacheMaxSizeMB={this.props.cacheMaxSizeMB}
+          startBufferDuration={this.props.startBufferDuration}
+          highBufferDuration={this.props.highBufferDuration}
+          maxBufferDuration={this.props.maxBufferDuration}
+          />     
+        ): null}
+  
       </View>
     );
   }
