@@ -1,13 +1,13 @@
 {
   "name": "react-native-aliplayer",
   "title": "A React Native wrapper around AliyunVideo SDK",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A React Native wrapper around AliyunVideo SDK",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hehex9/react-native-apsara-player.git",
-    "baseUrl": "https://github.com/hehex9/react-native-apsara-player"
+    "url": "git+https://github.com/Guakamoli/react-native-aliplayer.git",
+    "baseUrl": "https://github.com/Guakamoli/react-native-aliplayer.git"
   },
   "keywords": [
     "react-native",
