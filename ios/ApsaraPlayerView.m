@@ -38,7 +38,12 @@
     _player = nil;
   }
 }
+- (void)removeFromSuperview
+{
+  [self destroy];
+  [super removeFromSuperview];
 
+}
 - (AliPlayer *)player {
 
   if (!_player) {
@@ -290,6 +295,8 @@
   if ([instance isKindOfClass:[AliPlayer class]]) {
     AliPlayer *player = (AliPlayer *)instance;
     [player stop];
+    [player destroy];
+    [self removeFromSuperview];
     if (self.onVideoError) {
       self.onVideoError(@{
         @"message": errorModel.message,
