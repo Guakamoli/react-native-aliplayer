@@ -40,7 +40,7 @@
 }
 - (void)removeFromSuperview
 {
-  [self destroy];
+   [self destroy];
   [super removeFromSuperview];
 
 }
@@ -133,7 +133,13 @@
     _player.loop = _repeat;
   }
 }
-
+- (void)didMoveToSuperview
+{
+    [super didMoveToSuperview];
+    if (!self.superview) {
+        [self destroy];
+    }
+}
 - (void)setPaused:(BOOL)paused {
   if (paused) {
       _player.autoPlay = NO;
