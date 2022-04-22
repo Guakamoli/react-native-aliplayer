@@ -5,7 +5,6 @@
 
 @interface ApsaraPlayerManager : RCTViewManager  <RCTBridgeModule>
 
-@property (nonatomic, strong) ApsaraPlayerView *playerView;
 
 @end
 

@@ -50,9 +50,7 @@ RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBloc
 RCT_EXPORT_MODULE()
 
 - (UIView *)view {
-  ApsaraPlayerView *playerView = [ApsaraPlayerView new];
-  self.playerView = playerView;
-  return playerView;
+  return [ApsaraPlayerView new];;
 }
 
 - (dispatch_queue_t)methodQueue{
