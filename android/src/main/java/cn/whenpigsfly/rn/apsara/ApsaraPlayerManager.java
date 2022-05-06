@@ -47,7 +47,6 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
         mSurfaceView = new SurfaceView(c);
         playerView.addView(mSurfaceView);
-        ApsaraConst.mSelectedPlayerView = playerView;
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
