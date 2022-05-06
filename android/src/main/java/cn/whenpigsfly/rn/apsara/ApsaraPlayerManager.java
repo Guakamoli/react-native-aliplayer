@@ -3,6 +3,8 @@ package cn.whenpigsfly.rn.apsara;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import androidx.annotation.NonNull;
+
 import com.aliyun.player.AliPlayer;
 import com.aliyun.player.AliPlayerFactory;
 import com.facebook.react.bridge.ReadableMap;
@@ -23,6 +25,16 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     private SurfaceView mSurfaceView;
 
+    public void onDropViewInstance(@NonNull ApsaraPlayerView view) {
+        super.onDropViewInstance(view);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.destroy();
+            }
+        });
+    }
+
     @Override
     public String getName() {
         return REACT_CLASS;
@@ -35,7 +47,7 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
         mSurfaceView = new SurfaceView(c);
         playerView.addView(mSurfaceView);
-
+        ApsaraConst.mSelectedPlayerView = playerView;
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
@@ -60,7 +72,7 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
     @Nullable
     public Map getExportedCustomDirectEventTypeConstants() {
         MapBuilder.Builder builder = MapBuilder.builder();
-        for (Events event: Events.values()) {
+        for (Events event : Events.values()) {
             builder.put(event.toString(), MapBuilder.of("registrationName", event.toString()));
         }
         return builder.build();
