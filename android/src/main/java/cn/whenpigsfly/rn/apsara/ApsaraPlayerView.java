@@ -2,10 +2,12 @@ package cn.whenpigsfly.rn.apsara;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.aliyun.downloader.AliDownloaderFactory;
 import com.aliyun.downloader.AliMediaDownloader;
+import com.aliyun.loader.MediaLoader;
 import com.aliyun.player.AliPlayer;
 import com.aliyun.player.AliPlayerFactory;
 import com.aliyun.player.IPlayer;
@@ -19,6 +21,7 @@ import com.aliyun.player.nativeclass.TrackInfo;
 import com.aliyun.player.source.UrlSource;
 import com.aliyun.player.source.VidAuth;
 import com.aliyun.player.source.VidSts;
+import com.cicada.player.utils.FrameInfo;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -37,6 +40,7 @@ public class ApsaraPlayerView extends FrameLayout implements
         AliPlayer.OnCompletionListener,
         AliPlayer.OnPreparedListener,
         AliPlayer.OnSeekCompleteListener {
+
 
     public enum Events {
         EVENT_END("onVideoEnd"),
@@ -72,6 +76,8 @@ public class ApsaraPlayerView extends FrameLayout implements
     private LifecycleEventListener mLifecycleEventListener;
     private boolean mPrepared = false;
     private boolean mRepeat;
+
+    private boolean isPaused;
 
     public ApsaraPlayerView(ThemedReactContext context, AliPlayer player) {
         super(context);
@@ -128,24 +134,21 @@ public class ApsaraPlayerView extends FrameLayout implements
         mLifecycleEventListener = new LifecycleEventListener() {
             @Override
             public void onHostResume() {
-                if (ApsaraConst.mSelectedPlayerView != null && ApsaraConst.mSelectedPlayerView == ApsaraPlayerView.this) {
-                    ApsaraConst.mSelectedPlayerView.setPaused(false);
+                if (!isPaused && mPlayer != null) {
+                    mPlayer.start();
                 }
             }
 
             @Override
             public void onHostPause() {
-                if (ApsaraConst.mSelectedPlayerView != null && ApsaraConst.mSelectedPlayerView == ApsaraPlayerView.this) {
-                    ApsaraConst.mSelectedPlayerView.setPaused(true);
+                if (!isPaused && mPlayer != null) {
+                    mPlayer.pause();
                 }
             }
 
             @Override
             public void onHostDestroy() {
-                if (ApsaraConst.mSelectedPlayerView != null) {
-                    ApsaraConst.mSelectedPlayerView.destroy();
-                    ApsaraConst.mSelectedPlayerView = null;
-                }
+
             }
         };
         mContext.addLifecycleEventListener(mLifecycleEventListener);
@@ -168,7 +171,9 @@ public class ApsaraPlayerView extends FrameLayout implements
             mPlayer.setDataSource(source);
         }
 
-        mPlayer.prepare();
+        if (!isPaused) {
+            mPlayer.prepare();
+        }
 
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnInfoListener(this);
@@ -192,6 +197,7 @@ public class ApsaraPlayerView extends FrameLayout implements
         } else {
             mPlayer.start();
         }
+        isPaused = paused;
     }
 
     public void setRepeat(final boolean repeat) {
@@ -263,22 +269,36 @@ public class ApsaraPlayerView extends FrameLayout implements
         return auth;
     }
 
+    /**
+     * 播放完成之后，就会回调到此接口。
+     */
     @Override
     public void onCompletion() {
+        Log.e("AAA", "onCompletion:");
         mEventEmitter.receiveEvent(getId(), Events.EVENT_END.toString(), null);
     }
 
+
+    /**
+     * 播放器中的一些信息，包括：当前进度、缓存位置等等
+     */
     @Override
     public void onInfo(InfoBean info) {
+        Log.e("AAA", "onInfo:" + info.getExtraValue());
         if (info.getCode() == InfoCode.CurrentPosition) {
             WritableMap map = Arguments.createMap();
+            map.putDouble("duration", mPlayer.getDuration());
             map.putDouble("currentTime", info.getExtraValue());
             mEventEmitter.receiveEvent(getId(), Events.EVENT_PROGRESS.toString(), map);
         }
     }
 
+    /**
+     * 出错后需要停止掉播放器
+     */
     @Override
     public void onError(ErrorInfo errorInfo) {
+        Log.e("AAA", "onError");
         WritableMap map = Arguments.createMap();
         map.putInt("code", errorInfo.getCode().getValue());
         map.putString("message", errorInfo.getMsg());
@@ -288,15 +308,23 @@ public class ApsaraPlayerView extends FrameLayout implements
         }
     }
 
+    /**
+     * 调用aliPlayer.prepare()方法后，播放器开始读取并解析数据。成功后，会回调此接口。
+     */
     @Override
     public void onPrepared() {
+        Log.e("AAA", "onPrepared");
         WritableMap map = Arguments.createMap();
         map.putDouble("duration", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
     }
 
+    /**
+     * 拖动完成
+     */
     @Override
     public void onSeekComplete() {
+        Log.e("AAA", "onSeekComplete");
         WritableMap map = Arguments.createMap();
         map.putDouble("currentTime", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_SEEK.toString(), null);
