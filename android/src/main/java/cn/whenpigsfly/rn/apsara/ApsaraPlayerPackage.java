@@ -20,6 +20,8 @@ public class ApsaraPlayerPackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Arrays.<ViewManager>asList(new ApsaraPlayerManager());
+        List<ViewManager> viewManagers = new ArrayList<>();
+        viewManagers.add(new ApsaraPlayerManager());
+        return viewManagers;
     }
 }
