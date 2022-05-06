@@ -178,6 +178,16 @@ public class ApsaraPlayerView extends FrameLayout implements
             mPlayer.prepare();
         }
 
+        mPlayer.setOnRenderingStartListener(new IPlayer.OnRenderingStartListener() {
+            @Override
+            public void onRenderingStart() {
+//                Log.e("AAA", "onRenderingStart");
+                WritableMap map = Arguments.createMap();
+                map.putDouble("duration", mPlayer.getDuration());
+                mEventEmitter.receiveEvent(getId(), Events.EVENT_FIRST_RENDERED_START.toString(), map);
+            }
+        });
+
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnInfoListener(this);
         mPlayer.setOnErrorListener(this);
@@ -229,7 +239,7 @@ public class ApsaraPlayerView extends FrameLayout implements
 
     public void setSeek(long position) {
         if (mPlayer != null) {
-            mPlayer.seekTo(position);
+            mPlayer.seekTo(position,IPlayer.SeekMode.Accurate);
         }
         isSeek = true;
         mSeekTime = position;
@@ -279,7 +289,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onCompletion() {
-        Log.e("AAA", "onCompletion:");
+//        Log.e("AAA", "onCompletion:");
         mEventEmitter.receiveEvent(getId(), Events.EVENT_END.toString(), null);
     }
 
@@ -317,11 +327,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onPrepared() {
-        Log.e("AAA", "onPrepared");
-        WritableMap map2 = Arguments.createMap();
-        map2.putDouble("duration", mPlayer.getDuration());
-        mEventEmitter.receiveEvent(getId(), Events.EVENT_FIRST_RENDERED_START.toString(), map2);
-
+//        Log.e("AAA", "onPrepared");
         WritableMap map = Arguments.createMap();
         map.putDouble("duration", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
@@ -332,7 +338,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onSeekComplete() {
-        Log.e("AAA", "onSeekComplete");
+//        Log.e("AAA", "onSeekComplete");
         if (isSeek) {
             isSeek = false;
             WritableMap map2 = Arguments.createMap();
