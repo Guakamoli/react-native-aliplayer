@@ -274,7 +274,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onCompletion() {
-        Log.e("AAA", "onCompletion:");
+//        Log.e("AAA", "onCompletion:");
         mEventEmitter.receiveEvent(getId(), Events.EVENT_END.toString(), null);
     }
 
@@ -284,7 +284,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onInfo(InfoBean info) {
-        Log.e("AAA", "onInfo:" + info.getExtraValue());
+//        Log.e("AAA", "onInfo:" + info.getExtraValue());
         if (info.getCode() == InfoCode.CurrentPosition) {
             WritableMap map = Arguments.createMap();
             map.putDouble("duration", mPlayer.getDuration());
@@ -298,7 +298,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onError(ErrorInfo errorInfo) {
-        Log.e("AAA", "onError");
+//        Log.e("AAA", "onError");
         WritableMap map = Arguments.createMap();
         map.putInt("code", errorInfo.getCode().getValue());
         map.putString("message", errorInfo.getMsg());
@@ -313,7 +313,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onPrepared() {
-        Log.e("AAA", "onPrepared");
+//        Log.e("AAA", "onPrepared");
         WritableMap map = Arguments.createMap();
         map.putDouble("duration", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
@@ -324,7 +324,7 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onSeekComplete() {
-        Log.e("AAA", "onSeekComplete");
+//        Log.e("AAA", "onSeekComplete");
         WritableMap map = Arguments.createMap();
         map.putDouble("currentTime", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_SEEK.toString(), null);
