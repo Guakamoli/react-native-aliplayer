@@ -50,24 +50,6 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
 //        mSurfaceView = new SurfaceView(c);
 //        playerView.addView(mSurfaceView);
-
-//        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-//            @Override
-//            public void surfaceCreated(SurfaceHolder holder) {
-//                player.setDisplay(holder);
-//            }
-//
-//            @Override
-//            public void surfaceChanged(SurfaceHolder holder, int i, int i1, int i2) {
-//                player.redraw();
-//            }
-//
-//            @Override
-//            public void surfaceDestroyed(SurfaceHolder holder) {
-//                player.setDisplay(null);
-//            }
-//        });
-
 //        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
 //            @Override
 //            public void surfaceCreated(SurfaceHolder holder) {
@@ -146,6 +128,11 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
     @ReactProp(name = "seek", defaultFloat = 0.0f)
     public void setSeek(final ApsaraPlayerView view, final float seek) {
         view.setSeek((long) seek);
+    }
+
+    @ReactProp(name = "cacheEnable", defaultBoolean = true)
+    public void setCacheEnable(final ApsaraPlayerView view, final boolean cacheEnable) {
+        view.setCacheEnable(cacheEnable);
     }
 
     @ReactProp(name = "source")
