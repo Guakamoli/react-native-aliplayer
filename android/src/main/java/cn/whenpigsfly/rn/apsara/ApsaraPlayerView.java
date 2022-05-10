@@ -28,6 +28,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
@@ -77,13 +78,13 @@ public class ApsaraPlayerView extends FrameLayout implements
     private LifecycleEventListener mLifecycleEventListener;
     private boolean mPrepared = false;
 
+    private IPlayer.ScaleMode mScaleMode = IPlayer.ScaleMode.SCALE_ASPECT_FIT;
     private boolean isPaused;
     private boolean isSeek;
     private long mSeekTime;
 
     public ApsaraPlayerView(ThemedReactContext context, AliPlayer player) {
         super(context);
-
         mContext = context;
         mPlayer = player;
         mEventEmitter = context.getJSModule(RCTEventEmitter.class);
@@ -92,13 +93,11 @@ public class ApsaraPlayerView extends FrameLayout implements
     }
 
     public void init() {
-        if (mPlayer != null) {
-            return;
+        if (mPlayer == null) {
+            mPlayer = AliPlayerFactory.createAliPlayer(mContext.getApplicationContext());
         }
-
-        mPlayer = AliPlayerFactory.createAliPlayer(mContext);
         mPlayer.setTraceId("DisableAnalytics");
-        mPlayer.setScaleMode(IPlayer.ScaleMode.SCALE_ASPECT_FIT);
+        mPlayer.setScaleMode(mScaleMode);
         //配置缓存和延迟控制,先获取配置
         PlayerConfig config = mPlayer.getConfig();
         //最大延迟。注意：直播有效。当延时比较大时，播放器sdk内部会追帧等，保证播放器的延时在这个范围内。
@@ -109,6 +108,7 @@ public class ApsaraPlayerView extends FrameLayout implements
         config.mHighBufferDuration = 3000;
         // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
         config.mStartBufferDuration = 500;
+        config.mPositionTimerIntervalMs = 500;
         //其他设置
         //往前缓存的最大时长。单位ms。默认为0。
         config.mMaxBackwardBufferDurationMs = 500;
@@ -221,6 +221,7 @@ public class ApsaraPlayerView extends FrameLayout implements
         mSeekTime = position;
     }
 
+
     public void setCacheEnable(boolean cacheEnable) {
         if (mPlayer != null && cacheEnable) {
             //本地缓存
@@ -236,6 +237,27 @@ public class ApsaraPlayerView extends FrameLayout implements
             cacheConfig.mMaxSizeMB = 20 * 1024;
             //设置缓存配置给到播放器
             mPlayer.setCacheConfig(cacheConfig);
+        }
+    }
+
+    public void setPositionTimerIntervalMs(final int positionTimerIntervalMs) {
+        if (mPlayer != null) {
+            PlayerConfig config = mPlayer.getConfig();
+            config.mPositionTimerIntervalMs = positionTimerIntervalMs;
+            mPlayer.setConfig(config);
+        }
+    }
+
+    public void setResizeMode(final String resizeMode) {
+        if ("contain".equals(resizeMode)) {
+            mScaleMode = IPlayer.ScaleMode.SCALE_ASPECT_FIT;
+            mPlayer.setScaleMode(IPlayer.ScaleMode.SCALE_ASPECT_FIT);
+        } else if ("cover".equals(resizeMode)) {
+            mScaleMode = IPlayer.ScaleMode.SCALE_ASPECT_FILL;
+            mPlayer.setScaleMode(IPlayer.ScaleMode.SCALE_ASPECT_FILL);
+        } else {
+            mScaleMode = IPlayer.ScaleMode.SCALE_ASPECT_FIT;
+            mPlayer.setScaleMode(IPlayer.ScaleMode.SCALE_ASPECT_FIT);
         }
     }
 

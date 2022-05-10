@@ -26,8 +26,6 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     public static final String REACT_CLASS = "ApsaraPlayer";
 
-    private SurfaceView mSurfaceView;
-
     public void onDropViewInstance(@NonNull ApsaraPlayerView view) {
         super.onDropViewInstance(view);
         view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
@@ -45,10 +43,11 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     @Override
     public ApsaraPlayerView createViewInstance(ThemedReactContext c) {
-        final AliPlayer player = AliPlayerFactory.createAliPlayer(c);
 
+        final AliPlayer player = AliPlayerFactory.createAliPlayer(c.getApplicationContext());
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
-//        mSurfaceView = new SurfaceView(c);
+
+//        SurfaceView mSurfaceView = new SurfaceView(c);
 //        playerView.addView(mSurfaceView);
 //        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
 //            @Override
@@ -130,9 +129,19 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         view.setSeek((long) seek);
     }
 
+    @ReactProp(name = "resizeMode")
+    public void setResizeMode(final ApsaraPlayerView view, final String resizeMode) {
+        view.setResizeMode(resizeMode);
+    }
+
     @ReactProp(name = "cacheEnable", defaultBoolean = true)
     public void setCacheEnable(final ApsaraPlayerView view, final boolean cacheEnable) {
         view.setCacheEnable(cacheEnable);
+    }
+
+    @ReactProp(name = "positionTimerIntervalMs", defaultInt = 100)
+    public void setPositionTimerIntervalMs(final ApsaraPlayerView view, final int positionTimerIntervalMs) {
+        view.setPositionTimerIntervalMs(positionTimerIntervalMs);
     }
 
     @ReactProp(name = "source")
