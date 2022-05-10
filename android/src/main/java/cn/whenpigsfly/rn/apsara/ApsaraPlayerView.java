@@ -76,7 +76,6 @@ public class ApsaraPlayerView extends FrameLayout implements
     private AliPlayer mPlayer;
     private LifecycleEventListener mLifecycleEventListener;
     private boolean mPrepared = false;
-    private boolean mRepeat;
 
     private boolean isPaused;
     private boolean isSeek;
@@ -115,23 +114,7 @@ public class ApsaraPlayerView extends FrameLayout implements
         config.mMaxBackwardBufferDurationMs = 500;
         //设置配置给播放器
         mPlayer.setConfig(config);
-
-
-        //本地缓存
-        CacheConfig cacheConfig = new CacheConfig();
-        //开启缓存功能
-        cacheConfig.mEnable = true;
-        //能够缓存的单个文件最大时长。超过此长度则不缓存
-        cacheConfig.mMaxDurationS = 300;
-        //缓存目录的位置
-        String dirPath = getDiskCachePath(mContext.getApplicationContext()) + File.separator + "aliplayer/video" + File.separator;
-        cacheConfig.mDir = dirPath;
-        //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
-        cacheConfig.mMaxSizeMB = 20 * 1024;
-        //设置缓存配置给到播放器
-        mPlayer.setCacheConfig(cacheConfig);
     }
-
 
     private void initLifecycle() {
         mLifecycleEventListener = new LifecycleEventListener() {
@@ -144,7 +127,7 @@ public class ApsaraPlayerView extends FrameLayout implements
 
             @Override
             public void onHostPause() {
-                if (!isPaused && mPlayer != null) {
+                if (mPlayer != null) {
                     mPlayer.pause();
                 }
             }
@@ -174,14 +157,13 @@ public class ApsaraPlayerView extends FrameLayout implements
             mPlayer.setDataSource(source);
         }
 
-        if (!isPaused) {
-            mPlayer.prepare();
-        }
+        mPlayer.prepare();
+
+        mPlayer.setAutoPlay(!isPaused);
 
         mPlayer.setOnRenderingStartListener(new IPlayer.OnRenderingStartListener() {
             @Override
             public void onRenderingStart() {
-//                Log.e("AAA", "onRenderingStart");
                 WritableMap map = Arguments.createMap();
                 map.putDouble("duration", mPlayer.getDuration());
                 mEventEmitter.receiveEvent(getId(), Events.EVENT_FIRST_RENDERED_START.toString(), map);
@@ -194,27 +176,21 @@ public class ApsaraPlayerView extends FrameLayout implements
         mPlayer.setOnPreparedListener(this);
         mPlayer.setOnSeekCompleteListener(this);
 
-        if (mRepeat) {
-            mPlayer.setAutoPlay(true);
-        }
-
         mPrepared = true;
     }
 
     public void setPaused(final boolean paused) {
-        if (mPlayer == null) {
-            return;
+        if (mPlayer != null) {
+            if (paused) {
+                mPlayer.pause();
+            } else {
+                mPlayer.start();
+            }
         }
-        if (paused) {
-            mPlayer.pause();
-        } else {
-            mPlayer.start();
-        }
-        isPaused = paused;
+        this.isPaused = paused;
     }
 
     public void setRepeat(final boolean repeat) {
-        mRepeat = repeat;
         if (mPlayer != null) {
             mPlayer.setLoop(repeat);
         }
@@ -239,10 +215,28 @@ public class ApsaraPlayerView extends FrameLayout implements
 
     public void setSeek(long position) {
         if (mPlayer != null) {
-            mPlayer.seekTo(position,IPlayer.SeekMode.Accurate);
+            mPlayer.seekTo(position, IPlayer.SeekMode.Accurate);
         }
         isSeek = true;
         mSeekTime = position;
+    }
+
+    public void setCacheEnable(boolean cacheEnable) {
+        if (mPlayer != null && cacheEnable) {
+            //本地缓存
+            CacheConfig cacheConfig = new CacheConfig();
+            //开启缓存功能
+            cacheConfig.mEnable = true;
+            //能够缓存的单个文件最大时长。超过此长度则不缓存
+            cacheConfig.mMaxDurationS = 300;
+            //缓存目录的位置
+            String dirPath = getDiskCachePath(mContext.getApplicationContext()) + File.separator + "aliplayer/video" + File.separator;
+            cacheConfig.mDir = dirPath;
+            //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
+            cacheConfig.mMaxSizeMB = 20 * 1024;
+            //设置缓存配置给到播放器
+            mPlayer.setCacheConfig(cacheConfig);
+        }
     }
 
     private VidSts getStsSource(Object obj) {
@@ -289,7 +283,6 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onCompletion() {
-//        Log.e("AAA", "onCompletion:");
         mEventEmitter.receiveEvent(getId(), Events.EVENT_END.toString(), null);
     }
 
@@ -312,7 +305,6 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onError(ErrorInfo errorInfo) {
-        Log.e("AAA", "onError");
         WritableMap map = Arguments.createMap();
         map.putInt("code", errorInfo.getCode().getValue());
         map.putString("message", errorInfo.getMsg());
@@ -327,7 +319,6 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onPrepared() {
-//        Log.e("AAA", "onPrepared");
         WritableMap map = Arguments.createMap();
         map.putDouble("duration", mPlayer.getDuration());
         mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
@@ -338,7 +329,6 @@ public class ApsaraPlayerView extends FrameLayout implements
      */
     @Override
     public void onSeekComplete() {
-//        Log.e("AAA", "onSeekComplete");
         if (isSeek) {
             isSeek = false;
             WritableMap map2 = Arguments.createMap();
@@ -433,24 +423,16 @@ public class ApsaraPlayerView extends FrameLayout implements
         }
     }
 
-
     /**
      * 获取 APP 的 cache 路径
-     *
-     * @param context
-     * @return /storage/emulated/0/Android/data/包名/cache
      */
     public static String getDiskCachePath(Context context) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
-            // /storage/emulated/0/Android/data/packageName/cache   不会在空间少时被自动清除
             File exFile = context.getExternalCacheDir();
             if (exFile != null) {
                 return exFile.getPath();
             }
-            return context.getCacheDir().getPath();
-        } else {
-            // /data/data/<应用包名>/cache   用来存储临时数据。因此在系统空间较少时有可能会被自动清除。
-            return context.getCacheDir().getPath();
         }
+        return context.getCacheDir().getPath();
     }
 }
