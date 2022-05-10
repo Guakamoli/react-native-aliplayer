@@ -1,7 +1,10 @@
 package cn.whenpigsfly.rn.apsara;
 
+import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
@@ -45,22 +48,65 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         final AliPlayer player = AliPlayerFactory.createAliPlayer(c);
 
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
-        mSurfaceView = new SurfaceView(c);
-        playerView.addView(mSurfaceView);
-        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+//        mSurfaceView = new SurfaceView(c);
+//        playerView.addView(mSurfaceView);
+
+//        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+//            @Override
+//            public void surfaceCreated(SurfaceHolder holder) {
+//                player.setDisplay(holder);
+//            }
+//
+//            @Override
+//            public void surfaceChanged(SurfaceHolder holder, int i, int i1, int i2) {
+//                player.redraw();
+//            }
+//
+//            @Override
+//            public void surfaceDestroyed(SurfaceHolder holder) {
+//                player.setDisplay(null);
+//            }
+//        });
+
+//        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+//            @Override
+//            public void surfaceCreated(SurfaceHolder holder) {
+//                player.setSurface(holder.getSurface());
+//            }
+//
+//            @Override
+//            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//                player.surfaceChanged();
+//            }
+//
+//            @Override
+//            public void surfaceDestroyed(SurfaceHolder holder) {
+//                player.setSurface(null);
+//            }
+//        });
+
+        TextureView textureView = new TextureView(c);
+        playerView.addView(textureView);
+        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                player.setDisplay(holder);
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                player.setSurface(new Surface(surface));
             }
 
             @Override
-            public void surfaceChanged(SurfaceHolder holder, int i, int i1, int i2) {
-                player.redraw();
+            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+                player.surfaceChanged();
             }
 
             @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                player.setDisplay(null);
+            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                player.setSurface(null);
+                return false;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
             }
         });
 
