@@ -53,7 +53,6 @@
     _player.rate = 1;
     _player.delegate = self;
     _player.playerView = self.playerView;
-    [self addSubview: self.playerView];
   }
   return _player;
 }
