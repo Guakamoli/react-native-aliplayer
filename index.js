@@ -6,6 +6,7 @@ import {
   NativeModules,
   NativeEventEmitter,
   findNodeHandle,
+  AppState,
   requireNativeComponent,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -18,6 +19,7 @@ export default class ApsaraPlayer extends React.Component {
   }
   constructor (props){
     super(props)
+    this.paused = props.paused
     this.state= {
       show: !!props.source,
       source: props.source,
@@ -26,7 +28,20 @@ export default class ApsaraPlayer extends React.Component {
       positionMillis: props.positionMillis
     }
   }
-
+  componentDidMount (){
+    AppState.addEventListener('change', this._handleAppStateChange);
+  }
+  _handleAppStateChange = (state)=> {
+    if (state !== 'active') {
+      this.setState({
+        paused: true
+      })
+    } else if (!this.paused){
+        this.setState({
+          paused: false
+        })
+    }
+  }
   componentWillUnmount() {
     try {
       if (this.t) {
@@ -45,6 +60,7 @@ export default class ApsaraPlayer extends React.Component {
     this._player.setNativeProps(nativeProps);
   }
   loadAsync =(source, options)=> {
+    this.paused = !options.shouldPlay
     this.setState({
       paused: !options.shouldPlay,
       muted: options.muted,
@@ -58,6 +74,7 @@ export default class ApsaraPlayer extends React.Component {
 
   }
   playAsync =()=> {
+    this.paused = false
     this.setState({
       paused: false
     })
@@ -66,8 +83,9 @@ export default class ApsaraPlayer extends React.Component {
     this.setState({
       muted: muted
     })
-  } 
+  }
   pauseAsync =()=>{
+    this.paused  = true
     this.setState({
       paused: true
     })
@@ -86,6 +104,7 @@ export default class ApsaraPlayer extends React.Component {
     } catch (e) {
       
     }
+    this.paused  = false
     this.setState({
       paused: false,
       // source: null,
