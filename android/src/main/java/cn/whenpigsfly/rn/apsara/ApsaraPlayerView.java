@@ -231,7 +231,7 @@ public class ApsaraPlayerView extends FrameLayout implements
             //能够缓存的单个文件最大时长。超过此长度则不缓存
             cacheConfig.mMaxDurationS = 300;
             //缓存目录的位置
-            String dirPath = getDiskCachePath(mContext.getApplicationContext()) + File.separator + "aliplayer/video" + File.separator;
+            String dirPath = getAliVideoCacheDir(mContext);
             cacheConfig.mDir = dirPath;
             //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
             cacheConfig.mMaxSizeMB = 20 * 1024;
@@ -445,10 +445,15 @@ public class ApsaraPlayerView extends FrameLayout implements
         }
     }
 
+
+    public static String getAliVideoCacheDir(Context context) {
+        return getDiskCachePath(context.getApplicationContext()) + File.separator + "aliplayer/video" + File.separator;
+    }
+
     /**
      * 获取 APP 的 cache 路径
      */
-    public static String getDiskCachePath(Context context) {
+    private static String getDiskCachePath(Context context) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
             File exFile = context.getExternalCacheDir();
             if (exFile != null) {
