@@ -10,6 +10,7 @@ import com.aliyun.downloader.AliMediaDownloader;
 import com.aliyun.loader.MediaLoader;
 import com.aliyun.player.AliPlayer;
 import com.aliyun.player.AliPlayerFactory;
+import com.aliyun.player.AliPlayerGlobalSettings;
 import com.aliyun.player.IPlayer;
 import com.aliyun.player.bean.ErrorInfo;
 import com.aliyun.player.bean.InfoBean;
@@ -114,6 +115,10 @@ public class ApsaraPlayerView extends FrameLayout implements
         config.mMaxBackwardBufferDurationMs = 500;
         //设置配置给播放器
         mPlayer.setConfig(config);
+
+//        AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 3, 1024 * 20, 0);
+//        String localCacheDir = ApsaraPlayerModule.getAliVideoPreloadDir(mContext);
+//        AliPlayerGlobalSettings.enableLocalCache(true, 1024 * 10, localCacheDir);
     }
 
     private void initLifecycle() {
@@ -148,8 +153,10 @@ public class ApsaraPlayerView extends FrameLayout implements
         VidAuth auth = getAuthSource(mSource.get("auth"));
         mPlayer.clearScreen();
         if (sts != null) {
+            Log.e("AAA", "prepare:" + sts);
             mPlayer.setDataSource(sts);
         } else if (auth != null) {
+            Log.e("AAA", "prepare:" + auth);
             mPlayer.setDataSource(auth);
         } else if (mSource.get("uri") != null && !String.valueOf(mSource.get("uri")).isEmpty()) {
             UrlSource source = new UrlSource();
@@ -210,6 +217,10 @@ public class ApsaraPlayerView extends FrameLayout implements
 
     public void setSource(final Map source) {
         mSource = source;
+
+//        if (mSource.get("uri") != null && !String.valueOf(mSource.get("uri")).isEmpty()) {
+//            preLoadUrl((String) mSource.get("uri"));
+//        }
         prepare();
     }
 
@@ -445,15 +456,14 @@ public class ApsaraPlayerView extends FrameLayout implements
         }
     }
 
-
     public static String getAliVideoCacheDir(Context context) {
-        return getDiskCachePath(context.getApplicationContext()) + File.separator + "aliplayer/video" + File.separator;
+        return getDiskCachePath(context.getApplicationContext()) + File.separator + "aliplayer/playCache" + File.separator;
     }
 
     /**
      * 获取 APP 的 cache 路径
      */
-    private static String getDiskCachePath(Context context) {
+    public static String getDiskCachePath(Context context) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
             File exFile = context.getExternalCacheDir();
             if (exFile != null) {
@@ -462,4 +472,31 @@ public class ApsaraPlayerView extends FrameLayout implements
         }
         return context.getCacheDir().getPath();
     }
+
+    public void preLoadUrl(final String url) {
+        Log.e("AAA", "preLoadUrl:" + url);
+        MediaLoader mediaLoader = MediaLoader.getInstance();
+        mediaLoader.setOnLoadStatusListener(new MediaLoader.OnLoadStatusListener() {
+            @Override
+            public void onError(String url, int code, String msg) {
+                //加载出错
+                Log.e("AAA", "onError preLoadUrl:" + url);
+                Log.e("AAA", "onError code:" + code + "; msg:" + msg);
+            }
+
+            @Override
+            public void onCompleted(String s) {
+                //加载完成
+                Log.e("AAA", "onCompleted preLoadUrl:" + url);
+            }
+
+            @Override
+            public void onCanceled(String s) {
+                //加载取消
+                Log.e("AAA", "onCanceled preLoadUrl:" + url);
+            }
+        });
+        mediaLoader.load(url, 10 * 1000);
+    }
+
 }
