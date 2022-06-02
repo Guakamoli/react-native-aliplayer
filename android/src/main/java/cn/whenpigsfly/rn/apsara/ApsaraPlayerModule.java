@@ -1,5 +1,8 @@
 package cn.whenpigsfly.rn.apsara;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.aliyun.loader.MediaLoader;
 import com.aliyun.player.AliPlayerGlobalSettings;
 import com.facebook.react.bridge.Arguments;
@@ -15,6 +18,8 @@ import com.facebook.react.uimanager.NativeViewHierarchyManager;
 import com.facebook.react.uimanager.UIBlock;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+
+import java.io.File;
 
 public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
     private ReactApplicationContext mReactContext;
@@ -69,10 +74,13 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
         //enable - true：开启本地缓存。false：关闭。默认关闭。
         //maxBufferMemoryKB - 设置单个源的最大内存占用大小。单位KB
         //localCacheDir - 本地缓存的文件目录，绝对路径
-        String localCacheDir = ApsaraPlayerView.getAliVideoCacheDir(mReactContext);
+        String localCacheDir = getAliVideoPreloadDir(mReactContext);
         AliPlayerGlobalSettings.enableLocalCache(true, 1024 * 10, localCacheDir);
     }
 
+    public static String getAliVideoPreloadDir(Context context) {
+        return ApsaraPlayerView.getDiskCachePath(context.getApplicationContext()) + File.separator + "aliplayer/preloadCache" + File.separator;
+    }
 
     /**
      * @param url     预加载 url
@@ -81,6 +89,7 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void preLoadUrl(final String url, final Promise promise) {
 
+//        Log.e("AAA", "preLoadUrl:" + url);
         MediaLoader mediaLoader = MediaLoader.getInstance();
 
         DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = mReactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
@@ -97,6 +106,8 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 params.putInt("code", code);
                 params.putString("msg", msg);
                 eventEmitter.emit("onError", params);
+
+//                Log.e("AAA", "onError preLoadUrl:" + url);
             }
 
             @Override
@@ -105,6 +116,8 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 params.putString("url", url);
                 eventEmitter.emit("onCompleted", params);
+
+//                Log.e("AAA", "onCompleted preLoadUrl:" + url);
             }
 
             @Override
@@ -113,6 +126,8 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 params.putString("url", url);
                 eventEmitter.emit("onCanceled", params);
+
+//                Log.e("AAA", "onCanceled preLoadUrl:" + url);
             }
         });
 
