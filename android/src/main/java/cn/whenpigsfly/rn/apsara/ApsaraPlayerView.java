@@ -5,6 +5,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import androidx.annotation.ColorInt;
+
 import com.aliyun.downloader.AliDownloaderFactory;
 import com.aliyun.downloader.AliMediaDownloader;
 import com.aliyun.loader.MediaLoader;
@@ -41,6 +43,8 @@ public class ApsaraPlayerView extends FrameLayout implements
         AliPlayer.OnErrorListener,
         AliPlayer.OnCompletionListener,
         AliPlayer.OnPreparedListener,
+        AliPlayer.OnRenderingStartListener,
+        AliPlayer.OnStateChangedListener,
         AliPlayer.OnSeekCompleteListener {
 
 
@@ -168,19 +172,15 @@ public class ApsaraPlayerView extends FrameLayout implements
 
         mPlayer.setAutoPlay(!isPaused);
 
-        mPlayer.setOnRenderingStartListener(new IPlayer.OnRenderingStartListener() {
-            @Override
-            public void onRenderingStart() {
-                WritableMap map = Arguments.createMap();
-                map.putDouble("duration", mPlayer.getDuration());
-                mEventEmitter.receiveEvent(getId(), Events.EVENT_FIRST_RENDERED_START.toString(), map);
-            }
-        });
 
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnInfoListener(this);
         mPlayer.setOnErrorListener(this);
+
+        mPlayer.setOnRenderingStartListener(this);
         mPlayer.setOnPreparedListener(this);
+        mPlayer.setOnStateChangedListener(this);
+
         mPlayer.setOnSeekCompleteListener(this);
 
         mPrepared = true;
@@ -212,6 +212,12 @@ public class ApsaraPlayerView extends FrameLayout implements
     public void setVolume(final float volume) {
         if (mPlayer != null) {
             mPlayer.setVolume(volume);
+        }
+    }
+
+    public void setVideoBackgroundColor(@ColorInt final int videoBackgroundColorInt) {
+        if (mPlayer != null) {
+            mPlayer.setVideoBackgroundColor(videoBackgroundColorInt);
         }
     }
 
@@ -348,14 +354,37 @@ public class ApsaraPlayerView extends FrameLayout implements
     }
 
     /**
+     * 播放器状态变更通知
+     *
+     * @param newState
+     */
+    @Override
+    public void onStateChanged(int newState) {
+        if (newState == IPlayer.prepared) {
+            WritableMap map = Arguments.createMap();
+            map.putDouble("duration", mPlayer.getDuration());
+            mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
+        }
+    }
+
+    /**
      * 调用aliPlayer.prepare()方法后，播放器开始读取并解析数据。成功后，会回调此接口。
      */
     @Override
     public void onPrepared() {
+
+    }
+
+    /**
+     * 渲染开始通知
+     */
+    @Override
+    public void onRenderingStart() {
         WritableMap map = Arguments.createMap();
         map.putDouble("duration", mPlayer.getDuration());
-        mEventEmitter.receiveEvent(getId(), Events.EVENT_LOAD.toString(), map);
+        mEventEmitter.receiveEvent(getId(), Events.EVENT_FIRST_RENDERED_START.toString(), map);
     }
+
 
     /**
      * 拖动完成
