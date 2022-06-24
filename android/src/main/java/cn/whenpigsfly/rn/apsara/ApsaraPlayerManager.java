@@ -1,5 +1,6 @@
 package cn.whenpigsfly.rn.apsara;
 
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -144,12 +145,17 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         view.setPositionTimerIntervalMs(positionTimerIntervalMs);
     }
 
+    @ReactProp(name = "videoBackgroundColor", customType = "#000000")
+    public void setVideoBackgroundColor(final ApsaraPlayerView view, final String videoBackgroundColorString) {
+        int colorInts = Color.parseColor(videoBackgroundColorString);
+        view.setVideoBackgroundColor(colorInts);
+    }
+
     @ReactProp(name = "source")
     public void setSource(final ApsaraPlayerView view, @Nullable ReadableMap source) {
         if (source == null) {
             return;
         }
-
         view.setSource(source.toHashMap());
     }
 }
