@@ -1,5 +1,6 @@
 #import "ApsaraPlayerView.h"
-
+static NSMutableArray *videos;
+static int currentIndex;
 @interface ApsaraPlayerView ()
 @property (nonatomic, strong) UIView *playerView;
 @end
@@ -19,6 +20,10 @@
   int _maxBufferDuration;
   int _highBufferDuration;
   int _startBufferDuration;
+  
+  AliPlayer * _realPlayer;
+  
+
   AliMediaDownloader *_downloader;
   RCTPromiseResolveBlock _downloaderResolver;
   RCTPromiseRejectBlock _downloaderRejector;
@@ -32,11 +37,7 @@
 }
 
 - (void) dealloc {
-  if (_player) {
-    [_player stop];
-    [_player destroy];
-    _player = nil;
-  }
+    [self destroy];
 }
 - (void)removeFromSuperview
 {
@@ -45,9 +46,8 @@
 
 }
 - (AliPlayer *)player {
-
-  if (!_player) {
-    _player = [[AliPlayer alloc] init];
+  if (_realPlayer) {
+    _player = _realPlayer;
     _player.autoPlay = NO;
     _player.scalingMode = _resizeMode;
     _player.rate = 1;
@@ -87,15 +87,34 @@
   if (!_src[@"uri"]) {
     return;
   }
-  [self addSubview: self.player.playerView];
+  dispatch_async(dispatch_get_main_queue(), ^{
+   // UI更新代码
+ 
+
+    if (!videos) {
+        videos = [[NSMutableArray alloc] initWithCapacity:0];
+    }
+    AliPlayer *video;
+    if ([videos count] < 4) {
+        video =  [[AliPlayer alloc] init];
+        [videos addObject:video];
+        currentIndex++;
+    } else {
+        video = videos[++currentIndex];
+        // [videos exchangeObjectAtIndex:0 withObjectAtIndex:[videos count] -1];
+    }
+
 
   if (_src[@"uri"] && ![(NSString *)_src[@"uri"] isEqualToString:@""]) {
-    [_player setUrlSource:[[AVPUrlSource alloc] urlWithString:_src[@"uri"]]];
+    [video setUrlSource:[[AVPUrlSource alloc] urlWithString:_src[@"uri"]]];
   } else if (_src[@"sts"] && _src[@"sts"][@"vid"]) {
-    [_player setStsSource: [self stsSource:_src[@"sts"]]];
+    [video setStsSource: [self stsSource:_src[@"sts"]]];
   } else if (_src[@"auth"] && _src[@"auth"][@"vid"]) {
-    [_player setAuthSource: [self authSource:_src[@"auth"]]];
+    [video setAuthSource: [self authSource:_src[@"auth"]]];
   }
+    _realPlayer = video;
+
+    [self addSubview: self.player.playerView];
     //先获取配置
     AVPConfig *config = [_player getConfig];
     BOOL cacheEnable = _src[@"cacheEnable"];
@@ -146,10 +165,16 @@
 - (void)setPaused:(BOOL)paused {
   if (paused) {
       _player.autoPlay = NO;
-    [_player pause];
+      if (_player) {
+          [_player pause];
+      }
+  
   } else {
     _player.autoPlay = YES;
-    [_player start];
+      if (_player) {
+          [_player start];
+      }
+   
   }
 
   _paused = paused;
@@ -158,11 +183,16 @@
 - (void)setResizeMode:(NSString*)mode
 {
     if ([mode isEqual: @"contain"]) {
-        _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
+        if (_player) {
+            _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
+
+        }
         _resizeMode = AVP_SCALINGMODE_SCALEASPECTFIT;
 
     } else if ([mode isEqual: @"cover"]) {
-        _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFILL;
+        if (_player) {
+            _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFILL;
+        }
         _resizeMode = AVP_SCALINGMODE_SCALEASPECTFILL;
 
     }
@@ -214,12 +244,18 @@
 }
 
 - (void)setMuted: (bool)muted {
-  _player.muted = muted;
+    if (_player) {
+        _player.muted = muted;
+    }
+
     _muted = muted;
 }
 
 - (void)setVolume: (float)volume {
-  _player.volume = volume;
+    if (_player) {
+        _player.volume = volume;
+    }
+  
 }
 - (void)setCacheEnable: (bool)cacheEnable {
   _cacheEnable = cacheEnable;
@@ -254,9 +290,15 @@
           @"duration": [NSNumber numberWithFloat:_player.duration],
           @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
       }
-      if (_seek) {
-        [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+      if (_player) {
+        if (_seek) {
+          [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+        }
+        if (_paused) {
+          [_player pause];
+        }
       }
+
 
       break;
     case AVPEventAutoPlayStart:
@@ -265,10 +307,14 @@
           @"duration": [NSNumber numberWithFloat:_player.duration],
           @"currentTime": [NSNumber numberWithFloat:_player.currentPosition]});
       }
-      if (_seek) {
-        [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+      if (_player) {
+        if (_seek) {
+          [_player seekToTime:_seek seekMode:AVP_SEEKMODE_ACCURATE];
+        }
+        if (_paused) {
+          [_player pause];
+        }
       }
-
       break;
     case AVPEventFirstRenderedStart:
       if (self.onVideoFirstRenderedStart) {
@@ -303,8 +349,7 @@
 - (void)onError:(id)instance errorModel:(AVPErrorModel *)errorModel {
   if ([instance isKindOfClass:[AliPlayer class]]) {
     AliPlayer *player = (AliPlayer *)instance;
-    [player stop];
-    [player destroy];
+      [self destroy];
     [self removeFromSuperview];
     if (self.onVideoError) {
       self.onVideoError(@{
@@ -362,12 +407,16 @@
 
 # pragma destroy
 - (void)destroy {
-  if (_player) {
-    [_player stop];
-    [_player destroy];
-     _player = nil;
-  }
-
+  dispatch_async(dispatch_get_main_queue(), ^{
+   // UI更新代码
+    if (_realPlayer && _realPlayer.delegate == self) {
+      [_realPlayer stop];
+      _realPlayer.delegate = nil;
+      _realPlayer.playerView = nil;
+      _realPlayer = nil;
+      _player = nil;
+    }
+  });
   if (_downloader) {
     [_downloader destroy];
   }
