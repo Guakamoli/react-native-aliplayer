@@ -1,6 +1,5 @@
 #import "ApsaraPlayerView.h"
-static NSMutableArray *videos;
-static int currentIndex;
+static NSMutableDictionary *videosGroup;
 @interface ApsaraPlayerView ()
 @property (nonatomic, strong) UIView *playerView;
 @end
@@ -20,6 +19,9 @@ static int currentIndex;
   int _maxBufferDuration;
   int _highBufferDuration;
   int _startBufferDuration;
+  NSString *_nameSapce;
+  
+  int _maxVideoNum;
   
   AliPlayer * _realPlayer;
   
@@ -89,19 +91,40 @@ static int currentIndex;
   }
   dispatch_async(dispatch_get_main_queue(), ^{
    // UI更新代码
+    
+      NSString* currentNameSapce = self->_nameSapce;
+      if (!currentNameSapce) {
+          currentNameSapce = @"default";
+      }
+      NSMutableDictionary *hitGroup;
+      if (!videosGroup) {
+          videosGroup = [NSMutableDictionary new];
+      }
+      if (!videosGroup[currentNameSapce]) {
+          NSMutableArray *videos = [[NSMutableArray alloc] initWithCapacity:0];
+          hitGroup = [NSMutableDictionary new];
+          [hitGroup setObject: videos forKey:@"videos"];
+          [hitGroup setObject: [NSNumber numberWithInteger: -1] forKey:@"currentIndex"];
+          [videosGroup setObject: hitGroup forKey:currentNameSapce];
  
-
-    if (!videos) {
-        videos = [[NSMutableArray alloc] initWithCapacity:0];
-    }
+      } else {
+          hitGroup = [videosGroup objectForKey:currentNameSapce];
+      }
     AliPlayer *video;
-    if ([videos count] < 4) {
+      int maxVideoNum = self->_maxVideoNum | 4;
+    
+    if ([hitGroup[@"videos"] count] < maxVideoNum) {
         video =  [[AliPlayer alloc] init];
-        [videos addObject:video];
-        currentIndex++;
+        [hitGroup[@"videos"] addObject:video];
+        NSInteger currentIndex = [[hitGroup objectForKey:@"currentIndex"] integerValue];
+        currentIndex += 1;
+        [hitGroup setObject:[NSNumber numberWithInteger:currentIndex] forKey:@"currentIndex"];
+
     } else {
-        video = videos[++currentIndex];
-        // [videos exchangeObjectAtIndex:0 withObjectAtIndex:[videos count] -1];
+        NSInteger currentIndex = [[hitGroup objectForKey:@"currentIndex"] integerValue];
+        currentIndex = (currentIndex + 1 ) % maxVideoNum;
+        video = hitGroup[@"videos"][currentIndex];
+        [hitGroup setObject:[NSNumber numberWithInteger:currentIndex] forKey:@"currentIndex"];
     }
 
 
@@ -260,6 +283,15 @@ static int currentIndex;
 - (void)setCacheEnable: (bool)cacheEnable {
   _cacheEnable = cacheEnable;
 }
+
+- (void)setMaxVideoNum: (int)maxVideoNum {
+    _maxVideoNum = maxVideoNum;
+}
+
+- (void)setNameSapce: (NSString*)nameSapce {
+    _nameSapce = nameSapce;
+}
+
 - (void)setRepeat: (bool)repeat {
   _repeat = repeat;
     if (_player) {
@@ -407,8 +439,6 @@ static int currentIndex;
 
 # pragma destroy
 - (void)destroy {
-  dispatch_async(dispatch_get_main_queue(), ^{
-   // UI更新代码
     if (_realPlayer && _realPlayer.delegate == self) {
       [_realPlayer stop];
       _realPlayer.delegate = nil;
@@ -416,7 +446,6 @@ static int currentIndex;
       _realPlayer = nil;
       _player = nil;
     }
-  });
   if (_downloader) {
     [_downloader destroy];
   }
