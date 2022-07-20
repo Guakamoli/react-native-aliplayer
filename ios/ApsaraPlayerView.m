@@ -21,7 +21,7 @@ static NSMutableDictionary *videosGroup;
   int _startBufferDuration;
   NSString *_nameSapce;
   
-  int _maxVideoNum;
+  int _spaceMaxVideoNum;
   
   AliPlayer * _realPlayer;
   
@@ -89,13 +89,10 @@ static NSMutableDictionary *videosGroup;
   if (!_src[@"uri"]) {
     return;
   }
+  NSString* currentNameSapce = self->_nameSapce;
+  int maxVideoNum = self->_spaceMaxVideoNum;
   dispatch_async(dispatch_get_main_queue(), ^{
    // UI更新代码
-    
-      NSString* currentNameSapce = self->_nameSapce;
-      if (!currentNameSapce) {
-          currentNameSapce = @"default";
-      }
       NSMutableDictionary *hitGroup;
       if (!videosGroup) {
           videosGroup = [NSMutableDictionary new];
@@ -111,7 +108,6 @@ static NSMutableDictionary *videosGroup;
           hitGroup = [videosGroup objectForKey:currentNameSapce];
       }
     AliPlayer *video;
-      int maxVideoNum = self->_maxVideoNum | 4;
     
     if ([hitGroup[@"videos"] count] < maxVideoNum) {
         video =  [[AliPlayer alloc] init];
@@ -284,8 +280,8 @@ static NSMutableDictionary *videosGroup;
   _cacheEnable = cacheEnable;
 }
 
-- (void)setMaxVideoNum: (int)maxVideoNum {
-    _maxVideoNum = maxVideoNum;
+- (void)setSpaceMaxVideoNum: (int)spaceMaxVideoNum {
+    _spaceMaxVideoNum = spaceMaxVideoNum;
 }
 
 - (void)setNameSapce: (NSString*)nameSapce {

@@ -18,6 +18,7 @@ RCT_REMAP_METHOD(setGlobalSettings, options:(NSDictionary *)options
     [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB: maxBufferMemoryKB localCacheDir: localCacheDir];
     [AliPlayerGlobalSettings setCacheFileClearConfig: expireMin maxCapacityMB: maxCapacityMB freeStorageMB: freeStorageMB];
     [[AliMediaLoader shareInstance] setAliMediaLoaderStatusDelegate:self];
+
 }
 
 RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url duration:(nonnull NSNumber *)duration  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
@@ -81,7 +82,7 @@ RCT_EXPORT_VIEW_PROPERTY(highBufferDuration, int)
 RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
 
 RCT_EXPORT_VIEW_PROPERTY(cacheEnable, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(maxVideoNum, int)
+RCT_EXPORT_VIEW_PROPERTY(spaceMaxVideoNum, int)
 
 RCT_EXPORT_VIEW_PROPERTY(nameSapce, NSString)
 
