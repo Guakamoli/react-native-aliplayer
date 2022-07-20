@@ -82,7 +82,7 @@ RCT_EXPORT_VIEW_PROPERTY(highBufferDuration, int)
 RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
 
 RCT_EXPORT_VIEW_PROPERTY(cacheEnable, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(maxVideoNum, int)
+RCT_EXPORT_VIEW_PROPERTY(spaceMaxVideoNum, int)
 
 RCT_EXPORT_VIEW_PROPERTY(nameSapce, NSString)
 

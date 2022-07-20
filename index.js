@@ -174,6 +174,8 @@ export default class ApsaraPlayer extends React.Component {
           seek={this.props.positionMillis}
           onVideoEnd={this.props.onEnd}
           resizeMode={this.props.resizeMode}
+          nameSpace={this.props.nameSpace}
+          spaceMaxVideoNum={this.props.spaceMaxVideoNum}
           onVideoLoad={this._onLoad}
           onVideoSeek={this._onSeek}
           onVideoError={this._onError}
@@ -205,7 +207,9 @@ ApsaraPlayer.defaultProps = {
   highBufferDuration: 3000,
   maxBufferDuration: 10000,
   progressUpdateIntervalMillis: 30,
-  resizeMode: 'contain'
+  resizeMode: 'contain',
+  nameSpace: "default",
+  spaceMaxVideoNum: 1,
 }
 
 ApsaraPlayer.propTypes = {
