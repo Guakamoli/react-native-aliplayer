@@ -84,7 +84,7 @@ RCT_EXPORT_VIEW_PROPERTY(startBufferDuration, int)
 RCT_EXPORT_VIEW_PROPERTY(cacheEnable, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(spaceMaxVideoNum, int)
 
-RCT_EXPORT_VIEW_PROPERTY(nameSapce, NSString)
+RCT_EXPORT_VIEW_PROPERTY(nameSpace, NSString)
 
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
 // RCT_EXPORT_VIEW_PROPERTY(cacheMaxSizeMB, int)
