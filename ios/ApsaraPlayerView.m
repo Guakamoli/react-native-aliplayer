@@ -19,7 +19,7 @@ static NSMutableDictionary *videosGroup;
   int _maxBufferDuration;
   int _highBufferDuration;
   int _startBufferDuration;
-  NSString *_nameSapce;
+  NSString *_nameSpace;
   
   int _spaceMaxVideoNum;
   
@@ -89,26 +89,27 @@ static NSMutableDictionary *videosGroup;
   if (!_src[@"uri"]) {
     return;
   }
-  NSString* currentNameSapce = self->_nameSapce;
-  int maxVideoNum = self->_spaceMaxVideoNum;
-  dispatch_async(dispatch_get_main_queue(), ^{
+  NSString* currentNameSapce = _nameSpace;
+  int maxVideoNum = _spaceMaxVideoNum;
+  AliPlayer *video;
+
    // UI更新代码
-      NSMutableDictionary *hitGroup;
-      if (!videosGroup) {
-          videosGroup = [NSMutableDictionary new];
-      }
-      if (!videosGroup[currentNameSapce]) {
-          NSMutableArray *videos = [[NSMutableArray alloc] initWithCapacity:0];
-          hitGroup = [NSMutableDictionary new];
-          [hitGroup setObject: videos forKey:@"videos"];
-          [hitGroup setObject: [NSNumber numberWithInteger: -1] forKey:@"currentIndex"];
-          [videosGroup setObject: hitGroup forKey:currentNameSapce];
- 
-      } else {
-          hitGroup = [videosGroup objectForKey:currentNameSapce];
-      }
-    AliPlayer *video;
-    
+  NSMutableDictionary *hitGroup;
+  if (!videosGroup) {
+      videosGroup = [NSMutableDictionary new];
+  }
+  if (!videosGroup[currentNameSapce]) {
+      NSMutableArray *videos = [[NSMutableArray alloc] initWithCapacity:0];
+      hitGroup = [NSMutableDictionary new];
+      [hitGroup setObject: videos forKey:@"videos"];
+      [hitGroup setObject: [NSNumber numberWithInteger: -1] forKey:@"currentIndex"];
+      [videosGroup setObject: hitGroup forKey:currentNameSapce];
+
+  } else {
+      hitGroup = [videosGroup objectForKey:currentNameSapce];
+  }
+
+
     if ([hitGroup[@"videos"] count] < maxVideoNum) {
         video =  [[AliPlayer alloc] init];
         [hitGroup[@"videos"] addObject:video];
@@ -285,7 +286,7 @@ static NSMutableDictionary *videosGroup;
 }
 
 - (void)setNameSapce: (NSString*)nameSapce {
-    _nameSapce = nameSapce;
+    _nameSpace = nameSapce;
 }
 
 - (void)setRepeat: (bool)repeat {
