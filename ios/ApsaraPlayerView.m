@@ -98,20 +98,21 @@
   }
     //先获取配置
     AVPConfig *config = [_player getConfig];
+    BOOL cacheEnable = _src[@"cacheEnable"];
 
     // // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
-    config.maxBufferDuration = _maxBufferDuration;
+    config.maxBufferDuration = 10000;
     // //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
-    config.highBufferDuration = _highBufferDuration;
+    config.highBufferDuration = 3000;
     // // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
-    config.startBufferDuration = _startBufferDuration;
+    config.startBufferDuration = 500;
     config.positionTimerIntervalMs = _positionTimerIntervalMs;
     //其他设置
     //设置配置给播放器
     [_player setConfig:config];
      AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
      //开启缓存功能
-     cacheConfig.enable = _cacheEnable;
+     cacheConfig.enable = cacheEnable;
      //能够缓存的单个文件最大时长。超过此长度则不缓存
      cacheConfig.maxDuration = 300;
      //缓存目录的位置，需替换成app期望的路径
