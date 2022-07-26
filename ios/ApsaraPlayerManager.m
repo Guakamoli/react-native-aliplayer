@@ -9,19 +9,20 @@ RCT_EXPORT_MODULE()
 }
 RCT_REMAP_METHOD(setGlobalSettings, options:(NSDictionary *)options
     resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    NSNumber *localCacheDir = options[@"maxBufferMemoryKB"] // 1024 * 10;
-    NSString *localCacheDir = options[@"localCacheDir"] // @"";
-    NSNumber *cacheMinutes = options[@"expireMin"] // 24 * 60 * 2;
-    NSNumber *maxCapacityMB = options[@"maxCapacityMB"] // 1024 * 5;
-    NSNumber *freeStorageMB = options[@"freeStorageMB"]; // 1024 * 5
+    int64_t maxBufferMemoryKB = [options[@"maxBufferMemoryKB"] longLongValue]; // 1024 * 10;
+    NSString *localCacheDir = options[@"localCacheDir"]; // @"";
+    int64_t expireMin = [options[@"expireMin"] longLongValue]; // 24 * 60 * 2;
+    int64_t maxCapacityMB = [options[@"maxCapacityMB"] longLongValue]; // 1024 * 5;
+    int64_t freeStorageMB = [options[@"freeStorageMB"] longLongValue]; // 1024 * 5
 
     [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB: maxBufferMemoryKB localCacheDir: localCacheDir];
     [AliPlayerGlobalSettings setCacheFileClearConfig: expireMin maxCapacityMB: maxCapacityMB freeStorageMB: freeStorageMB];
     [[AliMediaLoader shareInstance] setAliMediaLoaderStatusDelegate:self];
 }
 
-RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url duration:(NSNumber *):duration resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-  [[AliMediaLoader shareInstance] load: url duration: duration];
+RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url duration:(nonnull NSNumber *)duration  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    int64_t durationtrans = [duration longLongValue];
+  [[AliMediaLoader shareInstance] load: url duration: durationtrans];
 }
 
 RCT_REMAP_METHOD(cancelPreLoadUrl, url:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {

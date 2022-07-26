@@ -280,11 +280,10 @@ const setGlobalSettings =(options)=> {
     
   }
 }
-const cancelPreLoadUrl = (url, duration=5000) =>{
+const cancelPreLoadUrl = (url) =>{
   const _module = getModule()
   try {
-    console.info(_module?.cancelPreLoadUrl, '_module?.cancelPreLoadUrl')
-      _module?.cancelPreLoadUrl(url, duration);
+      _module?.cancelPreLoadUrl(url);
   } catch (e) {
     
   }
@@ -293,7 +292,6 @@ const cancelPreLoadUrl = (url, duration=5000) =>{
 const preLoadUrl = (url, duration=5000) =>{
   const _module = getModule()
   try {
-    console.info(_module?.preLoadUrl, '_module?.preLoadUrl')
       _module?.preLoadUrl(url, duration);
   } catch (e) {
     
