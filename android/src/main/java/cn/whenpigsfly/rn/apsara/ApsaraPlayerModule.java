@@ -69,13 +69,14 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
         //expireMin - 缓存多久过期：单位分钟，默认值30天，过期的缓存不管容量如何，都会在清理时淘汰掉；
         //maxCapacityMB - 最大缓存容量：单位兆，默认值20GB，在清理时，如果缓存总大小超过此大小，会以cacheItem为粒度，按缓存的最后时间排序，一个一个淘汰掉一些缓存，直到小于等于最大缓存容量；
         //freeStorageMB - 磁盘最小空余容量：单位兆，默认值0，在清理时，同最大缓存容量，如果当前磁盘容量小于该值，也会按规则一个一个淘汰掉一些缓存，直到freeStorage大于等于该值或者所有缓存都被干掉；
-        AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 3, 1024 * 20, 0);
+        AliPlayerGlobalSettings.enableLocalCache(true, 1024 * 10, localCacheDir);
+
+        AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 2, 1024 * 2, 1024 * 2);
 
         //enable - true：开启本地缓存。false：关闭。默认关闭。
         //maxBufferMemoryKB - 设置单个源的最大内存占用大小。单位KB
         //localCacheDir - 本地缓存的文件目录，绝对路径
         String localCacheDir = getAliVideoPreloadDir(mReactContext);
-        AliPlayerGlobalSettings.enableLocalCache(true, 1024 * 10, localCacheDir);
     }
 
     public static String getAliVideoPreloadDir(Context context) {
