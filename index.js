@@ -261,20 +261,40 @@ const getModule = () => {
  ? NativeModules.ApsaraMediaManager
  : NativeModules.ApsaraPlayerModule;
 }
-const setGlobalSettings =()=> {
+const setGlobalSettings =(options)=> {
   const _module = getModule()
+  const defaultOptions = {
+    maxBufferMemoryKB: 1024 * 10,
+    localCacheDir: "",
+    expireMin:  24 * 60 * 2,
+    maxCapacityMB: 1024 * 5,
+    freeStorageMB: 1024 * 5
+  }
+  options = {
+    ...defaultOptions,
+    ...options
+  }
   try {
-    console.info(_module?.setGlobalSettings, '_module?.preLoadUrl')
-      _module?.setGlobalSettings();
+      _module?.setGlobalSettings(options);
   } catch (e) {
     
   }
 }
-const preLoadUrl = (url) =>{
+const cancelPreLoadUrl = (url, duration=5000) =>{
+  const _module = getModule()
+  try {
+    console.info(_module?.cancelPreLoadUrl, '_module?.cancelPreLoadUrl')
+      _module?.cancelPreLoadUrl(url, duration);
+  } catch (e) {
+    
+  }
+}
+
+const preLoadUrl = (url, duration=5000) =>{
   const _module = getModule()
   try {
     console.info(_module?.preLoadUrl, '_module?.preLoadUrl')
-      _module?.preLoadUrl(url);
+      _module?.preLoadUrl(url, duration);
   } catch (e) {
     
   }
@@ -284,5 +304,6 @@ const ApsaraMediaManagerEmitter = new NativeEventEmitter(NativeModules.ApsaraMed
 export {
   ApsaraMediaManagerEmitter,
   setGlobalSettings,
-  preLoadUrl
+  preLoadUrl,
+  cancelPreLoadUrl
 }
