@@ -99,6 +99,7 @@
     //先获取配置
     AVPConfig *config = [_player getConfig];
     BOOL cacheEnable = _src[@"cacheEnable"];
+    NSString *cachePath = _src[@"cachePath"];
 
     // // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
     config.maxBufferDuration = 10000;
@@ -116,7 +117,9 @@
      //能够缓存的单个文件最大时长。超过此长度则不缓存
      cacheConfig.maxDuration = 300;
      //缓存目录的位置，需替换成app期望的路径
-    //  cacheConfig.path = @"aliyun";
+     if (cachePath) {
+       cacheConfig.path = cachePath;
+     }
      //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
      cacheConfig.maxSizeMB = 20 * 1024;
      //设置缓存配置给到播放器

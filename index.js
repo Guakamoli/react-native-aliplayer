@@ -22,7 +22,7 @@ export default class ApsaraPlayer extends React.Component {
     this.paused = props.paused
     this.state= {
       show: !!props.source,
-      source: {...props.source, cacheEnable: props.cacheEnable},
+      source: {...props.source, cacheEnable: props.cacheEnable, cachePath: props.cachePath},
       paused: props.paused,
       muted: props.muted,
       positionMillis: props.positionMillis
@@ -69,7 +69,8 @@ export default class ApsaraPlayer extends React.Component {
       this.setState({
         source: {
           ...source,
-          cacheEnable: this.props.cacheEnable
+          cacheEnable: this.props.cacheEnable,
+          cachePath: this.props.cachePath,
         },
   
       })
@@ -241,6 +242,7 @@ ApsaraPlayer.propTypes = {
   maxBufferDuration: PropTypes.number,
   progressUpdateIntervalMillis: PropTypes.number,
   resizeMode: PropTypes.string,
+  path:  PropTypes.string,
 };
 
 const styles = StyleSheet.create({
