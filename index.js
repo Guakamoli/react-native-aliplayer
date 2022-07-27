@@ -22,7 +22,13 @@ export default class ApsaraPlayer extends React.Component {
     this.paused = props.paused
     this.state= {
       show: !!props.source,
-      source: {...props.source, cacheEnable: props.cacheEnable, cachePath: props.cachePath},
+      source: {
+        ...props.source,
+        cacheEnable:props.cacheEnable,
+        cachePath: props.cachePath,
+        cachePath: props.cachePath,
+        nameSpace: props.nameSpace,
+      },
       paused: props.paused,
       muted: props.muted,
       positionMillis: props.positionMillis
@@ -71,6 +77,9 @@ export default class ApsaraPlayer extends React.Component {
           ...source,
           cacheEnable: this.props.cacheEnable,
           cachePath: this.props.cachePath,
+          nameSpace: this.props.nameSpace,
+          spaceMaxVideoNum: this.props.spaceMaxVideoNum,
+          
         },
   
       })
@@ -174,8 +183,6 @@ export default class ApsaraPlayer extends React.Component {
           seek={this.props.positionMillis}
           onVideoEnd={this.props.onEnd}
           resizeMode={this.props.resizeMode}
-          nameSpace={this.props.nameSpace}
-          spaceMaxVideoNum={this.props.spaceMaxVideoNum}
           onVideoLoad={this._onLoad}
           onVideoSeek={this._onSeek}
           onVideoError={this._onError}
