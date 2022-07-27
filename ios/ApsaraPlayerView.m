@@ -87,7 +87,7 @@ static NSMutableDictionary *videosGroup;
     return;
   }
   NSString* currentNameSapce = _src[@"nameSpace"];
-  int maxVideoNum = [_src[@"_spaceMaxVideoNum"] integerValue];
+  int maxVideoNum = [_src[@"spaceMaxVideoNum"] integerValue];
   AliPlayer *video;
 
    // UI更新代码
@@ -118,7 +118,9 @@ static NSMutableDictionary *videosGroup;
         NSInteger currentIndex = [[hitGroup objectForKey:@"currentIndex"] integerValue];
         currentIndex = (currentIndex + 1 ) % maxVideoNum;
         video = hitGroup[@"videos"][currentIndex];
-        [video stop];
+        if (video) {
+            [video stop];
+        }
         [hitGroup setObject:[NSNumber numberWithInteger:currentIndex] forKey:@"currentIndex"];
     }
 
