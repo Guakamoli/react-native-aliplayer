@@ -19,9 +19,6 @@ static NSMutableDictionary *videosGroup;
   int _maxBufferDuration;
   int _highBufferDuration;
   int _startBufferDuration;
-  NSString *_nameSpace;
-  
-  int _spaceMaxVideoNum;
   
   AliPlayer * _realPlayer;
   
@@ -89,8 +86,8 @@ static NSMutableDictionary *videosGroup;
   if (!_src[@"uri"]) {
     return;
   }
-  NSString* currentNameSapce = _nameSpace;
-  int maxVideoNum = _spaceMaxVideoNum;
+  NSString* currentNameSapce = _src[@"nameSpace"];
+  int maxVideoNum = [_src[@"_spaceMaxVideoNum"] integerValue];
   AliPlayer *video;
 
    // UI更新代码
@@ -121,6 +118,7 @@ static NSMutableDictionary *videosGroup;
         NSInteger currentIndex = [[hitGroup objectForKey:@"currentIndex"] integerValue];
         currentIndex = (currentIndex + 1 ) % maxVideoNum;
         video = hitGroup[@"videos"][currentIndex];
+        [video stop];
         [hitGroup setObject:[NSNumber numberWithInteger:currentIndex] forKey:@"currentIndex"];
     }
 
@@ -132,6 +130,7 @@ static NSMutableDictionary *videosGroup;
   } else if (_src[@"auth"] && _src[@"auth"][@"vid"]) {
     [video setAuthSource: [self authSource:_src[@"auth"]]];
   }
+    
     _realPlayer = video;
 
     [self addSubview: self.player.playerView];
@@ -150,30 +149,30 @@ static NSMutableDictionary *videosGroup;
     //其他设置
     //设置配置给播放器
     [_player setConfig:config];
-     AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
-     //开启缓存功能
-     cacheConfig.enable = cacheEnable;
-     //能够缓存的单个文件最大时长。超过此长度则不缓存
-     cacheConfig.maxDuration = 300;
-     //缓存目录的位置，需替换成app期望的路径
-     if (cachePath) {
-       cacheConfig.path = cachePath;
-     }
-     //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
-     cacheConfig.maxSizeMB = 20 * 1024;
-     //设置缓存配置给到播放器
-     [_player setCacheConfig:cacheConfig];
-  [_player prepare];
-  _prepared = YES;
-  if (!_paused) {
-    _player.autoPlay = YES;
-  }
-  if (_muted) {
-    _player.muted = _muted;
-  }
-  if (_repeat) {
-    _player.loop = _repeat;
-  }
+    AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
+    //开启缓存功能
+    cacheConfig.enable = cacheEnable;
+    //能够缓存的单个文件最大时长。超过此长度则不缓存
+    cacheConfig.maxDuration = 300;
+    //缓存目录的位置，需替换成app期望的路径
+    if (cachePath) {
+      cacheConfig.path = cachePath;
+    }
+    //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
+    cacheConfig.maxSizeMB = 20 * 1024;
+    //设置缓存配置给到播放器
+    [_player setCacheConfig:cacheConfig];
+    [_player prepare];
+    _prepared = YES;
+    if (!_paused) {
+      _player.autoPlay = YES;
+    }
+    if (_muted) {
+      _player.muted = _muted;
+    }
+    if (_repeat) {
+      _player.loop = _repeat;
+    }
 }
 - (void)didMoveToSuperview
 {
@@ -279,14 +278,6 @@ static NSMutableDictionary *videosGroup;
 }
 - (void)setCacheEnable: (bool)cacheEnable {
   _cacheEnable = cacheEnable;
-}
-
-- (void)setSpaceMaxVideoNum: (int)spaceMaxVideoNum {
-    _spaceMaxVideoNum = spaceMaxVideoNum;
-}
-
-- (void)setNameSapce: (NSString*)nameSapce {
-    _nameSpace = nameSapce;
 }
 
 - (void)setRepeat: (bool)repeat {
