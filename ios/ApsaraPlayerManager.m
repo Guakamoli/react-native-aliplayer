@@ -36,7 +36,7 @@ RCT_REMAP_METHOD(cancelPreLoadUrl, url:(NSString *)url resolver:(RCTPromiseResol
  @param msg 错误描述
  */
 - (void)onError:(NSString *)url code:(int64_t)code msg:(NSString *)msg {
-    [self sendEventWithName:@"onError" body:@{@"url":url, @"msg": msg}];
+    [self sendEventWithName:@"onError" body:@{@"url":url}];
 };
 
 /**
