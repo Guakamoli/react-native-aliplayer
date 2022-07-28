@@ -26,8 +26,7 @@ export default class ApsaraPlayer extends React.Component {
         ...props.source,
         cacheEnable:props.cacheEnable,
         cachePath: props.cachePath,
-        nameSpace: props.nameSpace,
-        spaceMaxVideoNum: props.spaceMaxVideoNum,
+        maxVideoNum: props.maxVideoNum || 5,
       },
       paused: props.paused,
       muted: props.muted,
@@ -77,8 +76,7 @@ export default class ApsaraPlayer extends React.Component {
           ...source,
           cacheEnable: this.props.cacheEnable,
           cachePath: this.props.cachePath,
-          nameSpace: this.props.nameSpace,
-          spaceMaxVideoNum: this.props.spaceMaxVideoNum,
+          maxVideoNum: this.props.maxVideoNum || 5,
           
         },
   
@@ -215,8 +213,7 @@ ApsaraPlayer.defaultProps = {
   maxBufferDuration: 10000,
   progressUpdateIntervalMillis: 30,
   resizeMode: 'contain',
-  nameSpace: "default",
-  spaceMaxVideoNum: 1,
+  maxVideoNum: 5,
 }
 
 ApsaraPlayer.propTypes = {
@@ -296,7 +293,7 @@ const setGlobalSettings =(options)=> {
 const cancelPreLoadUrl = (url) =>{
   const _module = getModule()
   try {
-      _module?.cancelPreLoadUrl(url);
+      _module?.cancelPreLoadUrl?.(url);
   } catch (e) {
     
   }
@@ -305,7 +302,7 @@ const cancelPreLoadUrl = (url) =>{
 const preLoadUrl = (url, duration=5000) =>{
   const _module = getModule()
   try {
-      _module?.preLoadUrl(url, duration);
+      _module?.preLoadUrl?.(url, duration);
   } catch (e) {
     
   }
