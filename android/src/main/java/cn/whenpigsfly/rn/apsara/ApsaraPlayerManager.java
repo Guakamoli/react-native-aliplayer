@@ -45,27 +45,9 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
     @Override
     public ApsaraPlayerView createViewInstance(ThemedReactContext c) {
 
+//        final AliPlayer player = AliPlayConst.getAliPlayer(c.getApplicationContext());
         final AliPlayer player = AliPlayerFactory.createAliPlayer(c.getApplicationContext());
         ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
-
-//        SurfaceView mSurfaceView = new SurfaceView(c);
-//        playerView.addView(mSurfaceView);
-//        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-//            @Override
-//            public void surfaceCreated(SurfaceHolder holder) {
-//                player.setSurface(holder.getSurface());
-//            }
-//
-//            @Override
-//            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-//                player.surfaceChanged();
-//            }
-//
-//            @Override
-//            public void surfaceDestroyed(SurfaceHolder holder) {
-//                player.setSurface(null);
-//            }
-//        });
 
         TextureView textureView = new TextureView(c);
         playerView.addView(textureView);
