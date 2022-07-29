@@ -100,9 +100,10 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
      * @param promise 回调
      */
     @ReactMethod
-    public void preLoadUrl(final String url, final Promise promise) {
+    public void preLoadUrl(final String url, final int duration, final Promise promise) {
 
-//        Log.e("AAA", "preLoadUrl:" + url);
+        // Log.e("AAA", "preLoadUrl:" + url+"; duration:"+duration);
+
         MediaLoader mediaLoader = MediaLoader.getInstance();
 
         DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = mReactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
@@ -119,7 +120,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 params.putInt("code", code);
                 params.putString("msg", msg);
                 eventEmitter.emit("onError", params);
-
 //                Log.e("AAA", "onError preLoadUrl:" + url);
             }
 
@@ -129,7 +129,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 params.putString("url", url);
                 eventEmitter.emit("onCompleted", params);
-
 //                Log.e("AAA", "onCompleted preLoadUrl:" + url);
             }
 
@@ -149,7 +148,7 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
          * @param url - 视频文件地址。
          * @param duration - 加载的时长大小，单位：毫秒。
          */
-        mediaLoader.load(url, 10 * 1000);
+        mediaLoader.load(url, duration);
     }
 
 }
