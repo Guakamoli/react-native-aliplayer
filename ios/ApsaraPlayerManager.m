@@ -18,6 +18,7 @@ RCT_REMAP_METHOD(setGlobalSettings, options:(NSDictionary *)options
     [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB: maxBufferMemoryKB localCacheDir: localCacheDir];
     [AliPlayerGlobalSettings setCacheFileClearConfig: expireMin maxCapacityMB: maxCapacityMB freeStorageMB: freeStorageMB];
     [[AliMediaLoader shareInstance] setAliMediaLoaderStatusDelegate:self];
+
 }
 
 RCT_REMAP_METHOD(preLoadUrl, url:(NSString *)url duration:(nonnull NSNumber *)duration  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
@@ -35,7 +36,7 @@ RCT_REMAP_METHOD(cancelPreLoadUrl, url:(NSString *)url resolver:(RCTPromiseResol
  @param msg 错误描述
  */
 - (void)onError:(NSString *)url code:(int64_t)code msg:(NSString *)msg {
-    [self sendEventWithName:@"onError" body:@{@"url":url, @"msg": msg}];
+    [self sendEventWithName:@"onError" body:@{@"url":url}];
 };
 
 /**
