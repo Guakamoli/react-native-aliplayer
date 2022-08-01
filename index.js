@@ -23,10 +23,12 @@ export default class ApsaraPlayer extends React.Component {
     this.state= {
       show: !!props.source,
       source: {
-        ...props.source,
-        cacheEnable:props.cacheEnable,
+        cacheEnable: props.cacheEnable,
         cachePath: props.cachePath,
         maxVideoNum: props.maxVideoNum || 5,
+        muted: props.muted,
+        repeat: props.repeat,
+        ...props.source, 
       },
       paused: props.paused,
       muted: props.muted,
@@ -69,20 +71,16 @@ export default class ApsaraPlayer extends React.Component {
     this.setState({
       paused: !options.shouldPlay,
       muted: options.muted,
-      show: true
-    },()=>{
-      this.setState({
-        source: {
-          ...source,
-          cacheEnable: this.props.cacheEnable,
-          cachePath: this.props.cachePath,
-          maxVideoNum: this.props.maxVideoNum || 5,
-          
-        },
-  
-      })
+      show: true,
+      source: {
+        ...source,
+        cacheEnable: this.props.cacheEnable,
+        cachePath: this.props.cachePath,
+        maxVideoNum: this.props.maxVideoNum || 5,
+        muted: options.muted,
+        repeat: this.props.repeat
+      },
     })
-
   }
   playAsync =()=> {
     this.paused = false

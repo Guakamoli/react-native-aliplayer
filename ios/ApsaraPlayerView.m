@@ -140,7 +140,9 @@ static NSMutableArray *videos;
     AVPConfig *config = [_player getConfig];
     BOOL cacheEnable = _src[@"cacheEnable"];
     NSString *cachePath = _src[@"cachePath"];
-    
+    BOOL muted = _src[@"muted"];
+    BOOL repeat = _src[@"repeat"];
+
     // // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
     config.maxBufferDuration = 10000;
     // //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
@@ -151,30 +153,26 @@ static NSMutableArray *videos;
     //其他设置
     //设置配置给播放器
     [_player setConfig:config];
-    AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
-    //开启缓存功能
-    cacheConfig.enable = cacheEnable;
-    //能够缓存的单个文件最大时长。超过此长度则不缓存
-    cacheConfig.maxDuration = 300;
-    //缓存目录的位置，需替换成app期望的路径
-    if (cachePath) {
-        cacheConfig.path = cachePath;
-    }
-    //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
-    cacheConfig.maxSizeMB = 20 * 1024;
-    //设置缓存配置给到播放器
-    [_player setCacheConfig:cacheConfig];
-    [_player prepare];
-    _prepared = YES;
-    if (!_paused) {
-        _player.autoPlay = YES;
-    }
-    if (_muted) {
-        _player.muted = NO;
-    }
-    if (_repeat) {
-        _player.loop = _repeat;
-    }
+     AVPCacheConfig *cacheConfig = [[AVPCacheConfig alloc] init];
+     //开启缓存功能
+     cacheConfig.enable = cacheEnable;
+     //能够缓存的单个文件最大时长。超过此长度则不缓存
+     cacheConfig.maxDuration = 300;
+     //缓存目录的位置，需替换成app期望的路径
+     if (cachePath) {
+       cacheConfig.path = cachePath;
+     }
+     //缓存目录的最大大小。超过此大小，将会删除最旧的缓存文件
+     cacheConfig.maxSizeMB = 20 * 1024;
+     //设置缓存配置给到播放器
+     [_player setCacheConfig:cacheConfig];
+  [_player prepare];
+  _prepared = YES;
+  if (!_paused) {
+    _player.autoPlay = YES;
+  }
+  _player.muted = muted;
+  _player.loop = repeat;
 }
 - (void)didMoveToSuperview
 {
@@ -265,11 +263,11 @@ static NSMutableArray *videos;
 }
 
 - (void)setMuted: (bool)muted {
-//    if (_player) {
-//        _player.muted = muted;
-//    }
-//
-//    _muted = muted;
+   if (_player) {
+       _player.muted = muted;
+   }
+
+   _muted = muted;
 }
 
 - (void)setVolume: (float)volume {
