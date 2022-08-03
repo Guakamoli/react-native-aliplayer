@@ -161,7 +161,7 @@ export default class ApsaraPlayer extends React.Component {
       <View style={[style, {display: this.state.source ? "flex": "none"}]}>
         {show? (
           <RNApsaraPlayer
-          playerType ={this.props.type}
+          playerType ={this.props.type||1}
           ref={r => {
             this._player = r;
           }}
