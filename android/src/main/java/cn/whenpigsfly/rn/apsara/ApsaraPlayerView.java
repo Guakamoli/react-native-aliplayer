@@ -1,8 +1,11 @@
 package cn.whenpigsfly.rn.apsara;
 
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Surface;
+import android.view.TextureView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
@@ -80,6 +83,7 @@ public class ApsaraPlayerView extends FrameLayout implements
 
     private Map<String, Object> mSource;
     private AliPlayer mPlayer;
+    private int mPlayerType;
     private LifecycleEventListener mLifecycleEventListener;
     private boolean mPrepared = false;
 
@@ -91,13 +95,13 @@ public class ApsaraPlayerView extends FrameLayout implements
     public ApsaraPlayerView(ThemedReactContext context, AliPlayer player) {
         super(context);
         mContext = context;
-        mPlayer = player;
         mEventEmitter = context.getJSModule(RCTEventEmitter.class);
-        init();
         initLifecycle();
     }
 
-    public void init() {
+    public void init(AliPlayer player, int type) {
+        mPlayer = player;
+        mPlayerType = type;
         if (mPlayer == null) {
             mPlayer = AliPlayerFactory.createAliPlayer(mContext.getApplicationContext());
         }
@@ -185,6 +189,8 @@ public class ApsaraPlayerView extends FrameLayout implements
 
         mPrepared = true;
     }
+
+    private TextureView mTextureView;
 
     public void setPaused(final boolean paused) {
         if (mPlayer != null) {
@@ -479,9 +485,14 @@ public class ApsaraPlayerView extends FrameLayout implements
             mLifecycleEventListener = null;
         }
         if (mPlayer != null) {
-            mPlayer.clearScreen();
-            mPlayer.release();
-            mPlayer = null;
+            mPlayer.pause();
+            mPlayer.setSurface(null);
+            mPlayer.setDisplay(null);
+            if (mPlayerType != 0) {
+                mPlayer.clearScreen();
+                mPlayer.release();
+                mPlayer = null;
+            }
         }
     }
 
