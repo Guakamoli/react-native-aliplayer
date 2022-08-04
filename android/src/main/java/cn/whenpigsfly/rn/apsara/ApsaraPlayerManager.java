@@ -2,15 +2,13 @@ package cn.whenpigsfly.rn.apsara;
 
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
+import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
 import com.aliyun.player.AliPlayer;
-import com.aliyun.player.AliPlayerFactory;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
@@ -29,12 +27,14 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     public void onDropViewInstance(@NonNull ApsaraPlayerView view) {
         super.onDropViewInstance(view);
+        AliPlayManager.getInstance().mPlayViewCount--;
         view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
             @Override
             public void run() {
                 view.destroy();
             }
         });
+        AliPlayManager.getInstance().setViewDestroy(view.getId());
     }
 
     @Override
@@ -44,37 +44,10 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     @Override
     public ApsaraPlayerView createViewInstance(ThemedReactContext c) {
-
-//        final AliPlayer player = AliPlayConst.getAliPlayer(c.getApplicationContext());
-        final AliPlayer player = AliPlayerFactory.createAliPlayer(c.getApplicationContext());
-        ApsaraPlayerView playerView = new ApsaraPlayerView(c, player);
-
-        TextureView textureView = new TextureView(c);
-        playerView.addView(textureView);
-        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-            @Override
-            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-                player.setSurface(new Surface(surface));
-            }
-
-            @Override
-            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-                player.surfaceChanged();
-            }
-
-            @Override
-            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-                player.setSurface(null);
-                return false;
-            }
-
-            @Override
-            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
-            }
-        });
-
-        return playerView;
+        AliPlayManager.getInstance().mPlayViewCount++;
+        ApsaraPlayerView view = new ApsaraPlayerView(c);
+        view.setId(R.id.player_view_ids);
+        return view;
     }
 
     @Override
@@ -87,50 +60,132 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         return builder.build();
     }
 
+
+    @ReactProp(name = "initPlayer", defaultBoolean = true)
+    public void setInitPlayer(final ApsaraPlayerView view, final boolean initPlayer) {
+        final AliPlayer player;
+        final AliPlayManager.AliPlayerInfo mPlayerInfo;
+        mPlayerInfo = AliPlayManager.getInstance().getAliPlayer(view.getContext(), view.getId());
+        player = mPlayerInfo.aliPlayer;
+        view.init(player);
+        TextureView textureView = new TextureView(view.getContext());
+        view.addView(textureView);
+        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+            @Override
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                player.setSurface(new Surface(surface));
+                player.surfaceChanged();
+            }
+
+            @Override
+            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+                player.setSurface(new Surface(surface));
+                player.surfaceChanged();
+            }
+
+            @Override
+            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                player.setSurface(null);
+                return true;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+            }
+        });
+    }
+
+
     @ReactProp(name = "paused", defaultBoolean = true)
     public void setPaused(final ApsaraPlayerView view, final boolean paused) {
-        view.setPaused(paused);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setPaused(paused);
+            }
+        });
     }
 
     @ReactProp(name = "repeat", defaultBoolean = true)
     public void setRepeat(final ApsaraPlayerView view, final boolean repeat) {
-        view.setRepeat(repeat);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setRepeat(repeat);
+            }
+        });
     }
 
     @ReactProp(name = "muted", defaultBoolean = false)
     public void setMuted(final ApsaraPlayerView view, final boolean muted) {
-        view.setMuted(muted);
+        Log.e("AliPlayer", "setMuted：" + view.getId());
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setMuted(muted);
+            }
+        });
     }
 
     @ReactProp(name = "volume", defaultFloat = 1.0f)
     public void setVolume(final ApsaraPlayerView view, final float volume) {
-        view.setVolume(volume);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setVolume(volume);
+            }
+        });
     }
 
     @ReactProp(name = "seek", defaultFloat = 0.0f)
     public void setSeek(final ApsaraPlayerView view, final float seek) {
-        view.setSeek((long) seek);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setSeek((long) seek);
+            }
+        });
     }
 
     @ReactProp(name = "resizeMode")
     public void setResizeMode(final ApsaraPlayerView view, final String resizeMode) {
-        view.setResizeMode(resizeMode);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setResizeMode(resizeMode);
+            }
+        });
     }
 
     @ReactProp(name = "cacheEnable", defaultBoolean = true)
     public void setCacheEnable(final ApsaraPlayerView view, final boolean cacheEnable) {
-        view.setCacheEnable(cacheEnable);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setCacheEnable(cacheEnable);
+            }
+        });
     }
 
     @ReactProp(name = "positionTimerIntervalMs", defaultInt = 100)
     public void setPositionTimerIntervalMs(final ApsaraPlayerView view, final int positionTimerIntervalMs) {
-        view.setPositionTimerIntervalMs(positionTimerIntervalMs);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setPositionTimerIntervalMs(positionTimerIntervalMs);
+            }
+        });
     }
 
     @ReactProp(name = "videoBackgroundColor", customType = "#000000")
     public void setVideoBackgroundColor(final ApsaraPlayerView view, final String videoBackgroundColorString) {
         int colorInts = Color.parseColor(videoBackgroundColorString);
-        view.setVideoBackgroundColor(colorInts);
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setVideoBackgroundColor(colorInts);
+            }
+        });
     }
 
     @ReactProp(name = "source")
@@ -138,6 +193,11 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         if (source == null) {
             return;
         }
-        view.setSource(source.toHashMap());
+        view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setSource(source.toHashMap());
+            }
+        });
     }
 }

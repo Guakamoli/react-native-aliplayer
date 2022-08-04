@@ -6,64 +6,108 @@ import android.util.Log;
 import com.aliyun.player.AliPlayer;
 import com.aliyun.player.AliPlayerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AliPlayConst {
+public class AliPlayManager {
+
+    private AliPlayManager() {
+    }
+
+    private static class Instance {
+        private static final AliPlayManager instance = new AliPlayManager();
+    }
+
+    public static AliPlayManager getInstance() {
+        return Instance.instance;
+    }
 
     /**
-     * 播放池播放器实例数量
+     * 播放器中 View 的数量
      */
-    public static final int PLAYER_COUNT = 5;
+    public int mPlayViewCount = 0;
 
     /**
      * 单个播放器最大复用次数
      */
-    public static final int MAX_REUSE_COUNT = 5;
+    private static final int mMaxReuseCount = 50;
+
+    public static class AliPlayerInfo {
+        //播放器实例
+        public AliPlayer aliPlayer;
+
+        //缓存池中的下标
+        public int playerPosition;
+
+        //当前播放器复用次数
+        public int reuseCount;
+
+        public int viewId = -1;
+
+        //是否被View展示中
+        public boolean isShowing = false;
+    }
+
+    private final ArrayList<AliPlayerInfo> mPlayHomeList = new ArrayList<>();
 
     /**
-     * 播放器池
+     * 记录每个View创建的 viewId,及对应的播放池下标
      */
-    public static final AliPlayer[] ALI_PLAYER_ARRAY = new AliPlayer[PLAYER_COUNT];
+    private final Map<Integer, Integer> mViewMap = new HashMap<>();
 
-    /**
-     * 记录播放器复用次数
-     */
-    public static final Map<Integer, Integer> ALI_PLAYER_MAP = new HashMap();
-
-    /**
-     * 播放次数
-     */
-    public static int PLAYER_POSITION = 0;
-
-    public static AliPlayer getAliPlayer(Context context) {
-        AliPlayer staticPlayer = AliPlayConst.ALI_PLAYER_ARRAY[(AliPlayConst.PLAYER_POSITION % AliPlayConst.PLAYER_COUNT)];
-        //0~4
-        int countPosition = AliPlayConst.PLAYER_POSITION % AliPlayConst.PLAYER_COUNT;
-
-        if (staticPlayer == null) {
-            staticPlayer = AliPlayerFactory.createAliPlayer(context);
-            AliPlayConst.ALI_PLAYER_ARRAY[countPosition] = staticPlayer;
-            AliPlayConst.ALI_PLAYER_MAP.put(countPosition, 1);
-        } else {
-            Integer reuseCount = AliPlayConst.ALI_PLAYER_MAP.get(countPosition);
-            if (reuseCount != null) {
-                //复用超过50次,释放并且重新创建播放器
-                if (reuseCount >= MAX_REUSE_COUNT) {
-                    staticPlayer.clearScreen();
-                    staticPlayer.release();
-                    staticPlayer = AliPlayerFactory.createAliPlayer(context);
-                    AliPlayConst.ALI_PLAYER_ARRAY[countPosition] = staticPlayer;
-                    AliPlayConst.ALI_PLAYER_MAP.put(countPosition, 1);
-                } else {
-                    //复用次数+1
-                    AliPlayConst.ALI_PLAYER_MAP.put(countPosition, reuseCount + 1);
+    public void setViewDestroy(int viewId) {
+        Integer playListPosition = mViewMap.get(viewId);
+        if (playListPosition != null) {
+            //把播放池中的播放器实例和View解绑
+            if (!mPlayHomeList.isEmpty() && mPlayHomeList.size() > playListPosition) {
+                AliPlayerInfo info = mPlayHomeList.get(playListPosition);
+                if (info != null && info.viewId == viewId) {
+                    info.viewId = -1;
+                    info.isShowing = false;
+                    mViewMap.remove(viewId);
                 }
             }
         }
-        Log.e("AliPlayer", "播放器位置：" + countPosition + "；复用次数：" + AliPlayConst.ALI_PLAYER_MAP.get(countPosition));
-        AliPlayConst.PLAYER_POSITION++;
-        return staticPlayer;
+    }
+
+    public AliPlayerInfo getAliPlayer(Context context, int viewId) {
+        for (AliPlayerInfo info : mPlayHomeList) {
+            //没有显示中的View
+            if (!info.isShowing) {
+                if (info.reuseCount < mMaxReuseCount) {
+                    //直接复用
+                    info.isShowing = true;
+                    info.viewId = viewId;
+                    info.reuseCount++;
+                } else {
+                    info.aliPlayer.setSurface(null);
+                    info.aliPlayer.setDisplay(null);
+                    info.aliPlayer.clearScreen();
+                    info.aliPlayer.release();
+                    AliPlayer player = AliPlayerFactory.createAliPlayer(context.getApplicationContext());
+                    info.aliPlayer = player;
+                    info.isShowing = true;
+                    info.viewId = viewId;
+                    info.reuseCount = 1;
+                }
+//                Log.e("AliPlayer", "缓存池大小：" + mPlayHomeList.size() + "；缓存池位置：" + info.playerPosition + "；复用次数：" + info.reuseCount + "；View数量：" + mPlayViewCount);
+                mViewMap.put(viewId, info.playerPosition);
+                return info;
+            }
+        }
+        AliPlayerInfo info = new AliPlayerInfo();
+        AliPlayer player = AliPlayerFactory.createAliPlayer(context.getApplicationContext());
+        info.aliPlayer = player;
+        info.isShowing = true;
+        info.viewId = viewId;
+        info.reuseCount = 1;
+        info.playerPosition = mPlayHomeList.size();
+        mPlayHomeList.add(info);
+        mViewMap.put(viewId, info.playerPosition);
+
+//        Log.e("AliPlayer", "缓存池大小：" + mPlayHomeList.size() + "；缓存池位置：" + info.playerPosition + "；复用次数：" + info.reuseCount + "；View数量：" + mPlayViewCount);
+        return info;
     }
 
 }
