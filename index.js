@@ -22,7 +22,14 @@ export default class ApsaraPlayer extends React.Component {
     this.paused = props.paused
     this.state= {
       show: !!props.source,
-      source: {...props.source, cacheEnable: props.cacheEnable, cachePath: props.cachePath},
+      source: {
+        cacheEnable: props.cacheEnable,
+        cachePath: props.cachePath,
+        maxVideoNum: props.maxVideoNum || 5,
+        muted: props.muted,
+        repeat: props.repeat,
+        ...props.source, 
+      },
       paused: props.paused,
       muted: props.muted,
       positionMillis: props.positionMillis
@@ -64,18 +71,16 @@ export default class ApsaraPlayer extends React.Component {
     this.setState({
       paused: !options.shouldPlay,
       muted: options.muted,
-      show: true
-    },()=>{
-      this.setState({
-        source: {
-          ...source,
-          cacheEnable: this.props.cacheEnable,
-          cachePath: this.props.cachePath,
-        },
-  
-      })
+      show: true,
+      source: {
+        ...source,
+        cacheEnable: this.props.cacheEnable,
+        cachePath: this.props.cachePath,
+        maxVideoNum: this.props.maxVideoNum || 5,
+        muted: options.muted,
+        repeat: this.props.repeat
+      },
     })
-
   }
   playAsync =()=> {
     this.paused = false
@@ -205,7 +210,8 @@ ApsaraPlayer.defaultProps = {
   highBufferDuration: 3000,
   maxBufferDuration: 10000,
   progressUpdateIntervalMillis: 30,
-  resizeMode: 'contain'
+  resizeMode: 'contain',
+  maxVideoNum: 5,
 }
 
 ApsaraPlayer.propTypes = {
@@ -285,7 +291,7 @@ const setGlobalSettings =(options)=> {
 const cancelPreLoadUrl = (url) =>{
   const _module = getModule()
   try {
-      _module?.cancelPreLoadUrl(url);
+      _module?.cancelPreLoadUrl?.(url);
   } catch (e) {
     
   }
@@ -294,7 +300,7 @@ const cancelPreLoadUrl = (url) =>{
 const preLoadUrl = (url, duration=5000) =>{
   const _module = getModule()
   try {
-      _module?.preLoadUrl(url, duration);
+      _module?.preLoadUrl?.(url, duration);
   } catch (e) {
     
   }
