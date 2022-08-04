@@ -46,7 +46,6 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
     public ApsaraPlayerView createViewInstance(ThemedReactContext c) {
         AliPlayManager.getInstance().mPlayViewCount++;
         ApsaraPlayerView view = new ApsaraPlayerView(c);
-        view.setId(R.id.player_view_ids);
         return view;
     }
 
