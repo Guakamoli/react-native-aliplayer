@@ -162,10 +162,13 @@ export default class ApsaraPlayer extends React.Component {
   render() {
     const style = [styles.base, this.props.style];
     const {show} =this.state
+
     return (
       <View style={[style, {display: this.state.source ? "flex": "none"}]}>
         {show? (
           <RNApsaraPlayer
+          // Android 端通过 initPlayer 来初始化播放器实例
+          initPlayer={true}
           ref={r => {
             this._player = r;
           }}

@@ -1,7 +1,6 @@
 package cn.whenpigsfly.rn.apsara;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.aliyun.loader.MediaLoader;
 import com.aliyun.player.AliPlayerGlobalSettings;
@@ -17,7 +16,6 @@ import com.facebook.react.uimanager.IllegalViewOperationException;
 import com.facebook.react.uimanager.NativeViewHierarchyManager;
 import com.facebook.react.uimanager.UIBlock;
 import com.facebook.react.uimanager.UIManagerModule;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
 
@@ -102,8 +100,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void preLoadUrl(final String url, final int duration, final Promise promise) {
 
-        // Log.e("AAA", "preLoadUrl:" + url+"; duration:"+duration);
-
         MediaLoader mediaLoader = MediaLoader.getInstance();
 
         DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter = mReactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
@@ -120,7 +116,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 params.putInt("code", code);
                 params.putString("msg", msg);
                 eventEmitter.emit("onError", params);
-//                Log.e("AAA", "onError preLoadUrl:" + url);
             }
 
             @Override
@@ -129,7 +124,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 params.putString("url", url);
                 eventEmitter.emit("onCompleted", params);
-//                Log.e("AAA", "onCompleted preLoadUrl:" + url);
             }
 
             @Override
@@ -138,8 +132,6 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 params.putString("url", url);
                 eventEmitter.emit("onCanceled", params);
-
-//                Log.e("AAA", "onCanceled preLoadUrl:" + url);
             }
         });
 

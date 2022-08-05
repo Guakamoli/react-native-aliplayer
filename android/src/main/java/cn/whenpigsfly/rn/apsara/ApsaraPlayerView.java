@@ -3,6 +3,7 @@ package cn.whenpigsfly.rn.apsara;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+import android.view.TextureView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
@@ -12,7 +13,6 @@ import com.aliyun.downloader.AliMediaDownloader;
 import com.aliyun.loader.MediaLoader;
 import com.aliyun.player.AliPlayer;
 import com.aliyun.player.AliPlayerFactory;
-import com.aliyun.player.AliPlayerGlobalSettings;
 import com.aliyun.player.IPlayer;
 import com.aliyun.player.bean.ErrorInfo;
 import com.aliyun.player.bean.InfoBean;
@@ -24,14 +24,12 @@ import com.aliyun.player.nativeclass.TrackInfo;
 import com.aliyun.player.source.UrlSource;
 import com.aliyun.player.source.VidAuth;
 import com.aliyun.player.source.VidSts;
-import com.cicada.player.utils.FrameInfo;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
-import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.io.File;
@@ -88,16 +86,15 @@ public class ApsaraPlayerView extends FrameLayout implements
     private boolean isSeek;
     private long mSeekTime;
 
-    public ApsaraPlayerView(ThemedReactContext context, AliPlayer player) {
+    public ApsaraPlayerView(ThemedReactContext context) {
         super(context);
         mContext = context;
-        mPlayer = player;
         mEventEmitter = context.getJSModule(RCTEventEmitter.class);
-        init();
         initLifecycle();
     }
 
-    public void init() {
+    public void init(AliPlayer player) {
+        mPlayer = player;
         if (mPlayer == null) {
             mPlayer = AliPlayerFactory.createAliPlayer(mContext.getApplicationContext());
         }
@@ -157,10 +154,8 @@ public class ApsaraPlayerView extends FrameLayout implements
         VidAuth auth = getAuthSource(mSource.get("auth"));
         mPlayer.clearScreen();
         if (sts != null) {
-            Log.e("AAA", "prepare:" + sts);
             mPlayer.setDataSource(sts);
         } else if (auth != null) {
-            Log.e("AAA", "prepare:" + auth);
             mPlayer.setDataSource(auth);
         } else if (mSource.get("uri") != null && !String.valueOf(mSource.get("uri")).isEmpty()) {
             UrlSource source = new UrlSource();
@@ -171,7 +166,6 @@ public class ApsaraPlayerView extends FrameLayout implements
         mPlayer.prepare();
 
         mPlayer.setAutoPlay(!isPaused);
-
 
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnInfoListener(this);
@@ -185,6 +179,8 @@ public class ApsaraPlayerView extends FrameLayout implements
 
         mPrepared = true;
     }
+
+    private TextureView mTextureView;
 
     public void setPaused(final boolean paused) {
         if (mPlayer != null) {
@@ -467,7 +463,6 @@ public class ApsaraPlayerView extends FrameLayout implements
         if (mDownloader == null) {
             return;
         }
-
         mDownloader.stop();
         mDownloader.release();
     }
@@ -479,9 +474,10 @@ public class ApsaraPlayerView extends FrameLayout implements
             mLifecycleEventListener = null;
         }
         if (mPlayer != null) {
-            mPlayer.clearScreen();
-            mPlayer.release();
-            mPlayer = null;
+            mPlayer.pause();
+//            mPlayer.clearScreen();
+//            mPlayer.release();
+//            mPlayer = null;
         }
     }
 
@@ -503,26 +499,25 @@ public class ApsaraPlayerView extends FrameLayout implements
     }
 
     public void preLoadUrl(final String url) {
-        Log.e("AAA", "preLoadUrl:" + url);
+//        Log.e("AAA", "preLoadUrl:" + url);
         MediaLoader mediaLoader = MediaLoader.getInstance();
         mediaLoader.setOnLoadStatusListener(new MediaLoader.OnLoadStatusListener() {
             @Override
             public void onError(String url, int code, String msg) {
                 //加载出错
-                Log.e("AAA", "onError preLoadUrl:" + url);
-                Log.e("AAA", "onError code:" + code + "; msg:" + msg);
+//                Log.e("AAA", "onError preLoadUrl:"  + url + "; code:"+ code + "; msg:" + msg);
             }
 
             @Override
             public void onCompleted(String s) {
                 //加载完成
-                Log.e("AAA", "onCompleted preLoadUrl:" + url);
+//                Log.e("AAA", "onCompleted preLoadUrl:" + url);
             }
 
             @Override
             public void onCanceled(String s) {
                 //加载取消
-                Log.e("AAA", "onCanceled preLoadUrl:" + url);
+//                Log.e("AAA", "onCanceled preLoadUrl:" + url);
             }
         });
         mediaLoader.load(url, 10 * 1000);
