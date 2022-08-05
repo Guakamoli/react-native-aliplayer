@@ -45,7 +45,7 @@ static NSMutableArray *videos;
 - (AliPlayer *)player {
     _player.autoPlay = NO;
     _player.scalingMode = _resizeMode;
-
+    _player.rate = 1;
     _player.delegate = self;
     _player.playerView = self.playerView;
     
