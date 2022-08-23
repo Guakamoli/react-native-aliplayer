@@ -20,7 +20,7 @@ static NSMutableArray *videos;
     int _highBufferDuration;
     int _startBufferDuration;
     NSMutableDictionary * _videoItem;
-    
+
     AliMediaDownloader *_downloader;
     RCTPromiseResolveBlock _downloaderResolver;
     RCTPromiseRejectBlock _downloaderRejector;
@@ -40,7 +40,7 @@ static NSMutableArray *videos;
 {
     [self destroy];
     [super removeFromSuperview];
-    
+
 }
 - (AliPlayer *)player {
     _player.autoPlay = NO;
@@ -48,7 +48,7 @@ static NSMutableArray *videos;
     _player.rate = 1;
     _player.delegate = self;
     _player.playerView = self.playerView;
-    
+
     return _player;
 }
 
@@ -92,6 +92,7 @@ static NSMutableArray *videos;
         [video stop];
     } else {
         video = [self createVideo];
+        [_videoItem setObject: @YES forKey:@"isExtra"];
     }
     return video;
 }
@@ -111,7 +112,7 @@ static NSMutableArray *videos;
     if (!_src[@"uri"]) {
         return;
     }
-    
+
     int maxVideoNum = [_src[@"maxVideoNum"] intValue];
     if (!maxVideoNum) {
         maxVideoNum = 10;
@@ -132,9 +133,9 @@ static NSMutableArray *videos;
     } else if (_src[@"auth"] && _src[@"auth"][@"vid"]) {
         [video setAuthSource: [self authSource:_src[@"auth"]]];
     }
-    
+
     _player = video;
-    
+
     [self addSubview: self.player.playerView];
     //先获取配置
     AVPConfig *config = [_player getConfig];
@@ -187,15 +188,15 @@ static NSMutableArray *videos;
         if (_player) {
             [_player pause];
         }
-        
+
     } else {
         _player.autoPlay = YES;
         if (_player) {
             [_player start];
         }
-        
+
     }
-    
+
     _paused = paused;
 }
 
@@ -204,16 +205,16 @@ static NSMutableArray *videos;
     if ([mode isEqual: @"contain"]) {
         if (_player) {
             _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFIT;
-            
+
         }
         _resizeMode = AVP_SCALINGMODE_SCALEASPECTFIT;
-        
+
     } else if ([mode isEqual: @"cover"]) {
         if (_player) {
             _player.scalingMode = AVP_SCALINGMODE_SCALEASPECTFILL;
         }
         _resizeMode = AVP_SCALINGMODE_SCALEASPECTFILL;
-        
+
     }
 }
 
@@ -222,7 +223,7 @@ static NSMutableArray *videos;
     if (_player) {
         [_player seekToTime:seek seekMode:AVP_SEEKMODE_ACCURATE];
     }
-    
+
 }
 
 - (void)setMaxBufferDuration: (int)maxBufferDuration {
@@ -232,7 +233,7 @@ static NSMutableArray *videos;
         config.maxBufferDuration = _maxBufferDuration;
         [_player setConfig:config];
     }
-    
+
 }
 - (void)setHighBufferDuration: (int)highBufferDuration {
     _highBufferDuration = highBufferDuration;
@@ -241,7 +242,7 @@ static NSMutableArray *videos;
         config.highBufferDuration = _highBufferDuration;
         [_player setConfig:config];
     }
-    
+
 }
 - (void)setStartBufferDuration: (int)startBufferDuration {
     _startBufferDuration = startBufferDuration;
@@ -250,7 +251,7 @@ static NSMutableArray *videos;
         config.startBufferDuration = _startBufferDuration;
         [_player setConfig:config];
     }
-    
+
 }
 - (void)setPositionTimerIntervalMs: (int)positionTimerIntervalMs {
     _positionTimerIntervalMs = positionTimerIntervalMs;
@@ -259,7 +260,7 @@ static NSMutableArray *videos;
         config.positionTimerIntervalMs = _positionTimerIntervalMs;
         [_player setConfig:config];
     }
-    
+
 }
 
 - (void)setMuted: (bool)muted {
@@ -274,7 +275,7 @@ static NSMutableArray *videos;
     if (_player) {
         _player.volume = volume;
     }
-    
+
 }
 - (void)setCacheEnable: (bool)cacheEnable {
     _cacheEnable = cacheEnable;
@@ -285,7 +286,7 @@ static NSMutableArray *videos;
     if (_player) {
         _player.loop = repeat;
     }
-    
+
 }
 
 - (dispatch_queue_t)methodQueue {
@@ -295,11 +296,11 @@ static NSMutableArray *videos;
     if (eventWithString == EVENT_PLAYER_CACHE_SUCCESS) {
         //缓存成功事件。
         NSLog(@"%@", description);
-        
+
     }else if (eventWithString == EVENT_PLAYER_CACHE_ERROR) {
         //缓存失败事件。
         NSLog(@"%@", description);
-        
+
     }
 }
 -(void)onPlayerEvent:(AliPlayer*)player eventType:(AVPEventType)eventType {
@@ -318,8 +319,8 @@ static NSMutableArray *videos;
                     [_player pause];
                 }
             }
-            
-            
+
+
             break;
         case AVPEventAutoPlayStart:
             if (self.onVideoLoad) {
@@ -393,13 +394,13 @@ static NSMutableArray *videos;
       reject:(RCTPromiseRejectBlock)reject {
     _downloaderResolver = resolve;
     _downloaderRejector = reject;
-    
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    
+
     _downloader = [[AliMediaDownloader alloc] init];
     [_downloader setDelegate:self];
     [_downloader setSaveDirectory: [paths firstObject]];
-    
+
     NSDictionary *opts = options ? options : _src;
     if (opts[@"sts"] && opts[@"sts"][@"vid"]) {
         [_downloader prepareWithVid:[self stsSource:opts[@"sts"]]];
@@ -435,7 +436,7 @@ static NSMutableArray *videos;
             [videos removeObjectAtIndex:index];
         }
     }
-    
+
 }
 # pragma destroy
 - (void)destroy {
@@ -444,7 +445,8 @@ static NSMutableArray *videos;
         _player.delegate = nil;
         _player.playerView = nil;
         _videoItem[@"isUsed"] = @NO;
-        if ([_videoItem[@"usedCount"] intValue] > 50) {
+
+        if ([_videoItem[@"usedCount"] intValue] > 50 || _videoItem[@"isExtra"]) {
             [self destroyVideo];
         }
         _player = nil;
