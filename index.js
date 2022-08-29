@@ -51,6 +51,8 @@ export default class ApsaraPlayer extends React.Component {
   }
   componentWillUnmount() {
     try {
+      AppState.removeEventListener('change', this._handleAppStateChange);
+
       if (this.t) {
         clearTimeout(this.t)
       }
