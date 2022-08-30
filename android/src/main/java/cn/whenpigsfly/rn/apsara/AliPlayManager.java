@@ -36,7 +36,7 @@ public class AliPlayManager {
     /**
      * 播放器缓存池最大数量
      */
-    private static final int mMaxPlayerCount = 10;
+    private static final int mMaxPlayerCount = 5;
 
     public static class AliPlayerInfo {
         //播放器实例
@@ -79,6 +79,7 @@ public class AliPlayManager {
                 }
             }
         }
+//        Log.e("AliPlayer", "setViewDestroy 缓存池大小：" + mPlayHomeList.size() + "；View数量：" + mPlayViewCount);
     }
 
     public AliPlayerInfo getAliPlayer(Context context, int viewId) {
