@@ -70,7 +70,7 @@ public class AliPlayManager {
                 if (info != null && info.viewId == viewId) {
                     //缓存池过大
                     if (mPlayHomeList.size() > mMaxPlayerCount) {
-                        mPlayHomeList.remove(playListPosition);
+                        mPlayHomeList.remove((int) playListPosition);
                     } else {
                         info.viewId = -1;
                         info.isShowing = false;
