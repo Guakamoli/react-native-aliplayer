@@ -33,6 +33,11 @@ public class AliPlayManager {
      */
     private static final int mMaxReuseCount = 50;
 
+    /**
+     * 播放器缓存池最大数量
+     */
+    private static final int mMaxPlayerCount = 10;
+
     public static class AliPlayerInfo {
         //播放器实例
         public AliPlayer aliPlayer;
@@ -63,8 +68,13 @@ public class AliPlayManager {
             if (!mPlayHomeList.isEmpty() && mPlayHomeList.size() > playListPosition) {
                 AliPlayerInfo info = mPlayHomeList.get(playListPosition);
                 if (info != null && info.viewId == viewId) {
-                    info.viewId = -1;
-                    info.isShowing = false;
+                    //缓存池过大
+                    if (mPlayHomeList.size() > mMaxPlayerCount) {
+                        mPlayHomeList.remove(playListPosition);
+                    } else {
+                        info.viewId = -1;
+                        info.isShowing = false;
+                    }
                     mViewMap.remove(viewId);
                 }
             }

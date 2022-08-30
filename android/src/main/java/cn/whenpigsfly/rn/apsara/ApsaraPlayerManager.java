@@ -66,6 +66,7 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         final AliPlayManager.AliPlayerInfo mPlayerInfo;
         mPlayerInfo = AliPlayManager.getInstance().getAliPlayer(view.getContext(), view.getId());
         player = mPlayerInfo.aliPlayer;
+        player.clearScreen();
         view.init(player);
         TextureView textureView = new TextureView(view.getContext());
         view.addView(textureView);
