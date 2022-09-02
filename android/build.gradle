@@ -3,7 +3,7 @@ def safeExtGet(prop, fallback) {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
+//apply plugin: 'maven'
 
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', 30)
