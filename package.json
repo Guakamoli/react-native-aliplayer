@@ -1,7 +1,7 @@
 {
   "name": "@guakamoli/react-native-aliplayer",
   "title": "A React Native wrapper around AliyunVideo SDK",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "A React Native wrapper around AliyunVideo SDK",
   "main": "index.js",
   "repository": {
