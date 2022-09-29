@@ -446,7 +446,7 @@ static NSMutableArray *videos;
         _player.delegate = nil;
         _player.playerView = nil;
         _videoItem[@"isUsed"] = @NO;
-        if ([_videoItem[@"usedCount"] intValue] > 50 || _videoItem[@"isExtra"]) {
+        if ([_videoItem[@"usedCount"] intValue] > 5 || _videoItem[@"isExtra"]) {
             [self destroyVideo];
         }
         _player = nil;
