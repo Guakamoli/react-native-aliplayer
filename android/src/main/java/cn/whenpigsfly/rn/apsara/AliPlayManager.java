@@ -31,7 +31,7 @@ public class AliPlayManager {
     /**
      * 单个播放器最大复用次数
      */
-    private static final int mMaxReuseCount = 50;
+    private static final int mMaxReuseCount = 5;
 
     /**
      * 播放器缓存池最大数量
