@@ -274,6 +274,11 @@ const getModule = () => {
  ? NativeModules.ApsaraMediaManager
  : NativeModules.ApsaraPlayerModule;
 }
+const getAliVideoPreloadDirPath = ()=> {
+  const _module = getModule()
+
+  return _module?.getAliVideoPreloadDirPath?.() || '';
+}
 const setGlobalSettings =(options)=> {
   const _module = getModule()
   const defaultOptions = {
@@ -316,5 +321,6 @@ export {
   ApsaraMediaManagerEmitter,
   setGlobalSettings,
   preLoadUrl,
-  cancelPreLoadUrl
+  cancelPreLoadUrl,
+  getAliVideoPreloadDirPath
 }

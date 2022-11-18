@@ -88,7 +88,11 @@ public class ApsaraPlayerModule extends ReactContextBaseJavaModule {
         //freeStorageMB - 磁盘最小空余容量：单位兆，默认值0，在清理时，同最大缓存容量，如果当前磁盘容量小于该值，也会按规则一个一个淘汰掉一些缓存，直到freeStorage大于等于该值或者所有缓存都被干掉；
         AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 2, 1024 * 5, 1024 * 5);
     }
-
+    @ReactMethod
+    public void getAliVideoPreloadDirPath(final Promise promise) {
+        String localCacheDir = getAliVideoPreloadDir(mReactContext);
+        promise.resolve(localCacheDir);
+    }
     public static String getAliVideoPreloadDir(Context context) {
         return ApsaraPlayerView.getDiskCachePath(context.getApplicationContext()) + File.separator + "aliplayer/preloadCache" + File.separator;
     }
