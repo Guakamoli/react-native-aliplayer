@@ -275,7 +275,9 @@ const getModule = () => {
  : NativeModules.ApsaraPlayerModule;
 }
 const getAliVideoPreloadDirPath = ()=> {
-  return _module?.setGlobalSettings?.(options) || '';
+  const _module = getModule()
+
+  return _module?.getAliVideoPreloadDirPath?.() || '';
 }
 const setGlobalSettings =(options)=> {
   const _module = getModule()
