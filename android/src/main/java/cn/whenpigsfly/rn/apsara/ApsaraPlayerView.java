@@ -101,21 +101,28 @@ public class ApsaraPlayerView extends FrameLayout implements
         mPlayer.setTraceId("DisableAnalytics");
         mPlayer.setScaleMode(mScaleMode);
         //配置缓存和延迟控制,先获取配置
-        PlayerConfig config = mPlayer.getConfig();
-        //最大延迟。注意：直播有效。当延时比较大时，播放器sdk内部会追帧等，保证播放器的延时在这个范围内。
-        config.mMaxDelayTime = 5000;
-        // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
-        config.mMaxBufferDuration = 50000;
-        //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
-        config.mHighBufferDuration = 3000;
-        // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
-        config.mStartBufferDuration = 500;
-        config.mPositionTimerIntervalMs = 500;
-        //其他设置
-        //往前缓存的最大时长。单位ms。默认为0。
-        config.mMaxBackwardBufferDurationMs = 500;
-        //设置配置给播放器
-        mPlayer.setConfig(config);
+        try 
+            { 
+                PlayerConfig config = mPlayer.getConfig();
+                //最大延迟。注意：直播有效。当延时比较大时，播放器sdk内部会追帧等，保证播放器的延时在这个范围内。
+                config.mMaxDelayTime = 5000;
+                // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
+                config.mMaxBufferDuration = 50000;
+                //高缓冲时长。单位ms。当网络不好导致加载数据时，如果加载的缓冲时长到达这个值，结束加载状态。
+                config.mHighBufferDuration = 3000;
+                // 起播缓冲区时长。单位ms。这个时间设置越短，起播越快。也可能会导致播放之后很快就会进入加载状态。
+                config.mStartBufferDuration = 500;
+                config.mPositionTimerIntervalMs = 500;
+                //其他设置
+                //往前缓存的最大时长。单位ms。默认为0。
+                config.mMaxBackwardBufferDurationMs = 500;
+                //设置配置给播放器
+                mPlayer.setConfig(config);
+            } catch(e) //如果上面的代码有错误，这里就捕获 
+            { 
+                //
+            }
+ 
 
 //        AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 3, 1024 * 20, 0);
 //        String localCacheDir = ApsaraPlayerModule.getAliVideoPreloadDir(mContext);
@@ -255,9 +262,16 @@ public class ApsaraPlayerView extends FrameLayout implements
 
     public void setPositionTimerIntervalMs(final int positionTimerIntervalMs) {
         if (mPlayer != null) {
-            PlayerConfig config = mPlayer.getConfig();
-            config.mPositionTimerIntervalMs = positionTimerIntervalMs;
-            mPlayer.setConfig(config);
+            try 
+            { 
+                PlayerConfig config = mPlayer.getConfig();
+                config.mPositionTimerIntervalMs = positionTimerIntervalMs;
+                mPlayer.setConfig(config);
+            } catch(e) //如果上面的代码有错误，这里就捕获 
+            { 
+                //
+            }
+      
         }
     }
 
