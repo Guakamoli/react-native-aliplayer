@@ -101,7 +101,11 @@ public class ApsaraPlayerView extends FrameLayout implements
         mPlayer.setTraceId("DisableAnalytics");
         mPlayer.setScaleMode(mScaleMode);
         //配置缓存和延迟控制,先获取配置
+
         PlayerConfig config = mPlayer.getConfig();
+        if (config == null) {
+            return;
+        }
         //最大延迟。注意：直播有效。当延时比较大时，播放器sdk内部会追帧等，保证播放器的延时在这个范围内。
         config.mMaxDelayTime = 5000;
         // 最大缓冲区时长。单位ms。播放器每次最多加载这么长时间的缓冲数据。
@@ -116,6 +120,8 @@ public class ApsaraPlayerView extends FrameLayout implements
         config.mMaxBackwardBufferDurationMs = 500;
         //设置配置给播放器
         mPlayer.setConfig(config);
+
+ 
 
 //        AliPlayerGlobalSettings.setCacheFileClearConfig(24 * 60 * 3, 1024 * 20, 0);
 //        String localCacheDir = ApsaraPlayerModule.getAliVideoPreloadDir(mContext);
@@ -256,8 +262,13 @@ public class ApsaraPlayerView extends FrameLayout implements
     public void setPositionTimerIntervalMs(final int positionTimerIntervalMs) {
         if (mPlayer != null) {
             PlayerConfig config = mPlayer.getConfig();
+            if (config == null) {
+                return;
+            }
             config.mPositionTimerIntervalMs = positionTimerIntervalMs;
             mPlayer.setConfig(config);
+
+      
         }
     }
 
