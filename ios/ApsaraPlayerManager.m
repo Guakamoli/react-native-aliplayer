@@ -14,7 +14,6 @@ RCT_REMAP_METHOD(setGlobalSettings, options:(NSDictionary *)options
     int64_t expireMin = [options[@"expireMin"] longLongValue]; // 24 * 60 * 2;
     int64_t maxCapacityMB = [options[@"maxCapacityMB"] longLongValue]; // 1024 * 5;
     int64_t freeStorageMB = [options[@"freeStorageMB"] longLongValue]; // 1024 * 5
-    [AliPlayerGlobalSettings setUseHttp2:false];
     [AliPlayerGlobalSettings enableLocalCache:true maxBufferMemoryKB: maxBufferMemoryKB localCacheDir: localCacheDir];
     [AliPlayerGlobalSettings setCacheFileClearConfig: expireMin maxCapacityMB: maxCapacityMB freeStorageMB: freeStorageMB];
     [[AliMediaLoader shareInstance] setAliMediaLoaderStatusDelegate:self];
