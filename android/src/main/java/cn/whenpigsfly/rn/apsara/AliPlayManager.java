@@ -91,6 +91,8 @@ public class AliPlayManager {
                     info.isShowing = true;
                     info.viewId = viewId;
                     info.reuseCount++;
+                    info.aliPlayer.clearScreen();
+                    info.aliPlayer.pause();
                 } else {
                     info.aliPlayer.setSurface(null);
                     info.aliPlayer.setDisplay(null);
