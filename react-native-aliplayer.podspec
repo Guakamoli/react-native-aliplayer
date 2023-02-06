@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
-  s.dependency "AliPlayerPartSDK_iOS", "5.5.1.0"
+  s.dependency "AliPlayerPartSDK_iOS", "5.5.0.0"
 
   # s.dependency "..."
 end
