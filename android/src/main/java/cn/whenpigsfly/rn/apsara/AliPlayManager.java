@@ -22,7 +22,6 @@ public class AliPlayManager {
     public static AliPlayManager getInstance() {
         return Instance.instance;
     }
-
     /**
      * 播放器中 View 的数量
      */
@@ -42,9 +41,6 @@ public class AliPlayManager {
         //播放器实例
         public AliPlayer aliPlayer;
 
-        //缓存池中的下标
-        public int playerPosition;
-
         //当前播放器复用次数
         public int reuseCount;
 
@@ -54,37 +50,37 @@ public class AliPlayManager {
         public boolean isShowing = false;
     }
 
-    private final ArrayList<AliPlayerInfo> mPlayHomeList = new ArrayList<>();
-
     /**
      * 记录每个View创建的 viewId,及对应的播放池下标
      */
-    private final Map<Integer, Integer> mViewMap = new HashMap<>();
+    private final Map<Integer, AliPlayerInfo> mViewMap = new HashMap<>();
 
     public void setViewDestroy(int viewId) {
-        Integer playListPosition = mViewMap.get(viewId);
-        if (playListPosition != null) {
+        AliPlayerInfo info = mViewMap.get(viewId);
             //把播放池中的播放器实例和View解绑
-            if (!mPlayHomeList.isEmpty() && mPlayHomeList.size() > playListPosition) {
-                AliPlayerInfo info = mPlayHomeList.get(playListPosition);
-                if (info != null && info.viewId == viewId) {
-                    //缓存池过大
-                    if (mPlayHomeList.size() > mMaxPlayerCount) {
-                        mPlayHomeList.remove((int) playListPosition);
-                    } else {
-                        info.viewId = -1;
-                        info.isShowing = false;
-                    }
-                    mViewMap.remove(viewId);
+        if (info != null) {
+            //缓存池过大
+            if (mViewMap.size() > mMaxPlayerCount) {
+                if (info.aliPlayer != null) {
+                    info.aliPlayer.stop();
+                    info.aliPlayer.release();
+                    info.aliPlayer = null;
                 }
+                mViewMap.remove(viewId);
+            } else {
+                if (info.aliPlayer != null) {
+                    info.aliPlayer.stop();
+                    info.aliPlayer.clearScreen();
+                }
+                info.viewId = -1;
+                info.isShowing = false;
             }
         }
-//        Log.e("AliPlayer", "setViewDestroy 缓存池大小：" + mPlayHomeList.size() + "；View数量：" + mPlayViewCount);
     }
 
     public AliPlayerInfo getAliPlayer(Context context, int viewId) {
-        for (AliPlayerInfo info : mPlayHomeList) {
-            //没有显示中的View
+        for (Map.Entry<Integer, AliPlayerInfo> entry : mViewMap.entrySet()) {
+            AliPlayerInfo info = entry.getValue();
             if (!info.isShowing) {
                 if (info.reuseCount < mMaxReuseCount) {
                     //直接复用
@@ -104,8 +100,6 @@ public class AliPlayManager {
                     info.viewId = viewId;
                     info.reuseCount = 1;
                 }
-//                Log.e("AliPlayer", "缓存池大小：" + mPlayHomeList.size() + "；缓存池位置：" + info.playerPosition + "；复用次数：" + info.reuseCount + "；View数量：" + mPlayViewCount);
-                mViewMap.put(viewId, info.playerPosition);
                 return info;
             }
         }
@@ -115,11 +109,8 @@ public class AliPlayManager {
         info.isShowing = true;
         info.viewId = viewId;
         info.reuseCount = 1;
-        info.playerPosition = mPlayHomeList.size();
-        mPlayHomeList.add(info);
-        mViewMap.put(viewId, info.playerPosition);
+        mViewMap.put(viewId, info);
 
-//        Log.e("AliPlayer", "缓存池大小：" + mPlayHomeList.size() + "；缓存池位置：" + info.playerPosition + "；复用次数：" + info.reuseCount + "；View数量：" + mPlayViewCount);
         return info;
     }
 

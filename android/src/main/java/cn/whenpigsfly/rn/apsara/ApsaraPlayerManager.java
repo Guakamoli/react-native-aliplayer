@@ -24,17 +24,19 @@ import cn.whenpigsfly.rn.apsara.ApsaraPlayerView.Events;
 public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
     public static final String REACT_CLASS = "ApsaraPlayer";
-
     public void onDropViewInstance(@NonNull ApsaraPlayerView view) {
+        int viewId = view.getId();
         super.onDropViewInstance(view);
         AliPlayManager.getInstance().mPlayViewCount--;
+
         view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
             @Override
             public void run() {
+                AliPlayManager.getInstance().setViewDestroy(viewId);
                 view.destroy();
             }
         });
-        AliPlayManager.getInstance().setViewDestroy(view.getId());
+        
     }
 
     @Override
@@ -48,6 +50,7 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
         ApsaraPlayerView view = new ApsaraPlayerView(c);
         return view;
     }
+
 
     @Override
     @Nullable
@@ -64,7 +67,8 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
     public void setInitPlayer(final ApsaraPlayerView view, final boolean initPlayer) {
         final AliPlayer player;
         final AliPlayManager.AliPlayerInfo mPlayerInfo;
-        mPlayerInfo = AliPlayManager.getInstance().getAliPlayer(view.getContext(), view.getId());
+        int viewId = view.getId();
+        mPlayerInfo = AliPlayManager.getInstance().getAliPlayer(view.getContext(), viewId);
         player = mPlayerInfo.aliPlayer;
         player.clearScreen();
         view.init(player);
@@ -85,6 +89,15 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                player.stop();
+                player.clearScreen();
+                int viewId = view.getId();
+                view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AliPlayManager.getInstance().setViewDestroy(viewId);
+                    }
+                });
                 player.setSurface(null);
                 return true;
             }
