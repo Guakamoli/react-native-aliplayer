@@ -89,15 +89,15 @@ public class ApsaraPlayerManager extends SimpleViewManager<ApsaraPlayerView> {
 
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-                player.stop();
-                player.clearScreen();
-                int viewId = view.getId();
-                view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        AliPlayManager.getInstance().setViewDestroy(viewId);
-                    }
-                });
+                player.pause();
+                // player.clearScreen();
+                // int viewId = view.getId();
+                // view.getThemedReactContext().runOnUiQueueThread(new Runnable() {
+                //     @Override
+                //     public void run() {
+                //         AliPlayManager.getInstance().setViewDestroy(viewId);
+                //     }
+                // });
                 player.setSurface(null);
                 return true;
             }
