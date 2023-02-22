@@ -10,7 +10,8 @@ import {
   requireNativeComponent,
 } from 'react-native';
 import PropTypes from 'prop-types';
-
+import DeviceInfo from 'react-native-device-info';
+const isEmulator = DeviceInfo.isEmulatorSync()
 export default class ApsaraPlayer extends React.Component {
   get _module() {
     return Platform.OS === 'ios'
@@ -164,7 +165,9 @@ export default class ApsaraPlayer extends React.Component {
   render() {
     const style = [styles.base, this.props.style];
     const {show} =this.state
-
+    if (isEmulator) {
+      return null
+    }
     return (
       <View style={[style, {display: this.state.source ? "flex": "none"}]}>
         {show? (
